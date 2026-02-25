@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { formatBRLFromCents } from "@/lib/currency";
 
 type Gift = {
   id: string;
@@ -83,7 +84,7 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
             <h3 className="text-xl">{gift.title}</h3>
             <p className="mb-3 mt-1 text-sm text-[var(--color-muted)]">{gift.description}</p>
             <div className="mb-3 flex items-center justify-between">
-              <strong>R$ {(gift.priceCents / 100).toFixed(2)}</strong>
+              <strong>{formatBRLFromCents(gift.priceCents)}</strong>
               <Badge>
                 {gift.state === "disponivel" ? "Disponível" : gift.state === "reservado" ? `Reservado (${gift.reservations})` : "Indisponível"}
               </Badge>
@@ -119,4 +120,3 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
     </div>
   );
 }
-

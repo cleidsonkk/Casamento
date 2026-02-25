@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { formatBRLFromCents } from "@/lib/currency";
 
 type Order = {
   id: string;
@@ -38,7 +39,7 @@ export default function OrdersDashboardPage() {
             <span className="col-span-3">{o.giverName}</span>
             <span className="col-span-3">{o.weddingGift.catalogItem.title}</span>
             <span className="col-span-2">{o.status}</span>
-            <span className="col-span-2">R$ {(o.amountCents / 100).toFixed(2)}</span>
+            <span className="col-span-2">{formatBRLFromCents(o.amountCents)}</span>
             <div className="col-span-2 flex gap-2">
               <Button variant="outline" onClick={() => confirm(o.id, "CANCELED")}>Cancelar</Button>
               <Button onClick={() => confirm(o.id, "PAID")}>Pago</Button>
@@ -49,4 +50,3 @@ export default function OrdersDashboardPage() {
     </Card>
   );
 }
-
