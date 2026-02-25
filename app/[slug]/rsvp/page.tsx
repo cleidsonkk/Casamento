@@ -1,0 +1,27 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { db } from "@/lib/db";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { RsvpForm } from "@/components/public/rsvp-form";
+
+export default async function RsvpPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const couple = await db.couple.findUnique({ where: { slug }, include: { wedding: true } });
+  if (!couple?.wedding?.published) notFound();
+  return (
+    <main className="mx-auto min-h-screen max-w-xl px-6 py-20">
+      <Link href={`/${slug}`}>
+        <Button variant="ghost" className="mb-5">
+          Voltar
+        </Button>
+      </Link>
+      <Card className="p-6">
+        <h1 className="mb-2 text-4xl">RSVP</h1>
+        <p className="mb-5 text-[var(--color-muted)]">Confirme sua presença em menos de 1 minuto.</p>
+        <RsvpForm slug={slug} />
+      </Card>
+    </main>
+  );
+}
+

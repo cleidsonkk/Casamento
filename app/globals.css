@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #f6f5f2;
+  --color-card: #ffffff;
+  --color-text: #101010;
+  --color-muted: #6a6a6a;
+  --color-primary: #111111;
+  --color-border: #e7e5e4;
+  --radius-card: 1.25rem;
+  --radius-button: 999px;
+  --radius-input: 0.9rem;
+  --font-body: var(--font-inter);
+  --font-heading: var(--font-playfair);
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  font-family: var(--font-body), sans-serif;
+  background: radial-gradient(circle at top, #ffffff, var(--color-bg));
+  color: var(--color-text);
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading), serif;
+  letter-spacing: -0.02em;
+}
+
+.glass {
+  background: color-mix(in srgb, white 80%, transparent);
+  backdrop-filter: blur(8px);
+}
+
