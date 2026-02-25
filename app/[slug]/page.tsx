@@ -62,14 +62,16 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
       </section>
 
       <div className="mx-auto grid max-w-6xl gap-6 px-6 pb-20 md:grid-cols-2">
-        {couple.wedding.sections.map((section) => (
+        {couple.wedding.sections.map(
+          (section: { id: string; title: string | null; type: string; content: string | null }) => (
           <AnimatedSection key={section.id}>
             <Card className="p-6">
               <h2 className="mb-2 text-3xl">{section.title ?? section.type}</h2>
               <p className="text-[var(--color-muted)]">{section.content}</p>
             </Card>
           </AnimatedSection>
-        ))}
+          ),
+        )}
       </div>
     </main>
   );
