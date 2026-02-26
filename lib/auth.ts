@@ -22,17 +22,18 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials.password) return null;
         const user = await db.user.findUnique({
           where: { email: credentials.email },
-          include: { coupleMembers: true },
+          include: { coupleMembers: { orderBy: { createdAt: "desc" } } },
         });
         if (!user) return null;
         const valid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!valid) return null;
+        const activeMembership = user.coupleMembers[0];
         return {
           id: user.id,
           name: user.name,
           email: user.email,
           role: user.role,
-          coupleId: user.coupleMembers[0]?.coupleId,
+          coupleId: activeMembership?.coupleId,
         } as never;
       },
     }),
