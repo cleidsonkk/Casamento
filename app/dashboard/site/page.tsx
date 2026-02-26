@@ -42,6 +42,8 @@ export default function DashboardSitePage() {
   const [wedding, setWedding] = useState<Wedding>({});
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+  const [coupleSlug, setCoupleSlug] = useState("");
+  const [shareBase, setShareBase] = useState("");
   const router = useRouter();
 
   const selectedTemplate = useMemo(
@@ -50,11 +52,13 @@ export default function DashboardSitePage() {
   );
 
   useEffect(() => {
+    setShareBase(window.location.origin);
     fetch("/api/dashboard/site")
       .then((response) => response.json())
       .then((data) => {
         const nextWedding = data?.wedding ?? {};
         const nextTemplates = data?.templates ?? [];
+        setCoupleSlug(data?.slug ?? "");
         setWedding(nextWedding);
         setTemplates(nextTemplates);
         setSelectedTemplateId(nextWedding.templateId ?? "");
@@ -95,6 +99,20 @@ export default function DashboardSitePage() {
     if (!res.ok) return toast.error("Falha ao aplicar template");
     toast.success("Template aplicado");
     router.refresh();
+  }
+
+  const publicLink = coupleSlug ? `${shareBase}/${coupleSlug}` : "";
+  const rsvpLink = coupleSlug ? `${shareBase}/${coupleSlug}/rsvp` : "";
+  const giftsLink = coupleSlug ? `${shareBase}/${coupleSlug}/presentes` : "";
+
+  async function copyLink(value: string) {
+    if (!value) return;
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success("Link copiado");
+    } catch {
+      toast.error("Nao foi possivel copiar o link");
+    }
   }
 
   return (
@@ -146,6 +164,34 @@ export default function DashboardSitePage() {
 
         <Button className="w-full md:w-auto">Salvar informacoes</Button>
       </form>
+
+      <div className="mt-6 space-y-3 rounded-2xl border border-[var(--color-border)] bg-white/70 p-4">
+        <h2 className="text-lg font-medium">Compartilhar com convidados</h2>
+        <p className="text-sm text-[var(--color-muted)]">
+          Copie os links do seu casamento e envie para os convidados.
+        </p>
+
+        {[
+          { label: "Site do casal", value: publicLink },
+          { label: "Confirmacao de presenca (RSVP)", value: rsvpLink },
+          { label: "Lista de presentes", value: giftsLink },
+        ].map((item) => (
+          <div key={item.label} className="rounded-xl border bg-white p-3">
+            <p className="mb-1 text-xs tracking-[0.12em] text-[var(--color-muted)]">{item.label}</p>
+            <p className="truncate text-sm">{item.value || "Carregando link..."}</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <Button type="button" variant="outline" className="h-9 px-4" onClick={() => copyLink(item.value)}>
+                Copiar link
+              </Button>
+              <a href={item.value || "#"} target="_blank" rel="noreferrer">
+                <Button type="button" className="h-9 px-4">
+                  Abrir link
+                </Button>
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
     </Card>
   );
 }
