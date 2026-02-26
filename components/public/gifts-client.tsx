@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { formatBRLFromCents } from "@/lib/currency";
 import { getGiftImageUrl } from "@/lib/gift-image";
+import { SmartImage } from "@/components/public/smart-image";
 
 type Gift = {
   id: string;
@@ -113,7 +114,7 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
         {filtered.map((gift) => (
           <Card key={gift.id} className="overflow-hidden border-white/80 bg-white/85 p-0 shadow-[0_25px_50px_-35px_rgba(0,0,0,0.5)]">
             <div className="relative">
-              <img
+              <SmartImage
                 src={getGiftImageUrl(gift.imageUrl, gift.title, gift.category)}
                 alt={gift.title}
                 className="h-48 w-full object-cover transition duration-500 hover:scale-[1.03]"
@@ -185,4 +186,3 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
     </div>
   );
 }
-

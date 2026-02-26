@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatCentsToInput, parseCurrencyInputToCents } from "@/lib/currency";
 import { getGiftImageUrl } from "@/lib/gift-image";
+import { SmartImage } from "@/components/public/smart-image";
 
 type GiftItem = {
   catalogItemId: string;
@@ -85,7 +86,7 @@ export default function GiftsDashboardPage() {
               />
             </label>
             <div className="col-span-5 flex items-center gap-2">
-              <img
+              <SmartImage
                 src={getGiftImageUrl(row.imageUrl, row.title, row.category)}
                 alt={row.title}
                 className="h-10 w-10 rounded-lg border object-cover"

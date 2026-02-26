@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { getGiftImageUrl } from "@/lib/gift-image";
 import { formatBRLFromCents } from "@/lib/currency";
 import { getTemplateTheme } from "@/lib/template-theme";
+import { SmartImage } from "@/components/public/smart-image";
 
 function formatEventDate(date: Date | null | undefined) {
   if (!date) return "12.12.2026";
@@ -53,7 +54,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
             <div className="overflow-hidden rounded-3xl border border-white/60 bg-white/60 backdrop-blur">
               <div className="grid lg:grid-cols-12">
                 <div className="relative min-h-[19rem] lg:col-span-7">
-                  <img src={theme.heroImage} alt={couple.wedding.title} className="h-full w-full object-cover" />
+                  <SmartImage src={theme.heroImage} alt={couple.wedding.title} className="h-full w-full object-cover" loading="eager" />
                   <div className={`absolute inset-0 ${theme.heroOverlay}`} />
                 </div>
                 <div className="flex items-center justify-center p-6 md:p-10 lg:col-span-5">
@@ -102,7 +103,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
           <section className="grid gap-4 px-3 pb-8 md:px-6 lg:grid-cols-12">
             <div className="space-y-4 lg:col-span-8">
               <Card id="historia" className="grid gap-4 border-white/70 bg-white/80 p-4 md:grid-cols-12 md:p-6">
-                <img
+                <SmartImage
                   src="https://images.unsplash.com/photo-1529636798458-92182e662485?w=1200&q=80&auto=format&fit=crop"
                   alt="Historia do casal"
                   className="h-56 w-full rounded-2xl object-cover md:col-span-5"
@@ -117,6 +118,33 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                   </Link>
                 </div>
               </Card>
+
+              <Card className="grid gap-4 border-white/70 bg-white/80 p-4 md:grid-cols-2 md:p-6">
+                <div>
+                  <h3 className={`text-3xl ${theme.titleClass}`}>Album de Fotos</h3>
+                  <p className="mt-2 text-sm text-[var(--color-muted)]">Momentos que marcaram nossa historia.</p>
+                  <div className="mt-4 grid grid-cols-3 gap-2">
+                    {[
+                      "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1200&q=80&auto=format&fit=crop",
+                      "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=1200&q=80&auto=format&fit=crop",
+                      "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=1200&q=80&auto=format&fit=crop",
+                    ].map((url) => (
+                      <SmartImage key={url} src={url} alt="Foto do casal" className="h-24 w-full rounded-lg object-cover md:h-28" />
+                    ))}
+                  </div>
+                </div>
+                <div className="rounded-2xl border bg-white/70 p-4">
+                  <h3 className={`text-3xl ${theme.titleClass}`}>Confirmacao de Presenca</h3>
+                  <p className="mt-2 text-sm text-[var(--color-muted)]">
+                    Sua presenca torna nosso dia ainda mais especial. Confirme em menos de 1 minuto.
+                  </p>
+                  <div className="mt-5">
+                    <Link href={`/${slug}/rsvp`}>
+                      <Button className="w-full md:w-auto">Confirmar Presenca</Button>
+                    </Link>
+                  </div>
+                </div>
+              </Card>
             </div>
 
             <aside id="presentes" className="lg:col-span-4">
@@ -126,7 +154,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                 <div className="space-y-3">
                   {couple.gifts.slice(0, 4).map((gift) => (
                     <div key={gift.id} className="rounded-xl border bg-white/80 p-2">
-                      <img
+                      <SmartImage
                         src={getGiftImageUrl(gift.catalogItem.imageUrl, gift.catalogItem.title, gift.catalogItem.category)}
                         alt={gift.catalogItem.title}
                         className="h-28 w-full rounded-lg object-cover"
@@ -147,4 +175,3 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
     </main>
   );
 }
-
