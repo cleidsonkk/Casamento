@@ -56,11 +56,18 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                 <div className="relative min-h-[19rem] lg:col-span-7">
                   <SmartImage src={theme.heroImage} alt={couple.wedding.title} className="h-full w-full object-cover" loading="eager" />
                   <div className={`absolute inset-0 ${theme.heroOverlay}`} />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_20%,rgba(255,255,255,.28),transparent_45%)]" />
                 </div>
-                <div className="flex items-center justify-center p-6 md:p-10 lg:col-span-5">
-                  <div className="w-full text-center">
+                <div className="relative flex items-center justify-center overflow-hidden p-5 md:p-10 lg:col-span-5">
+                  <div className="absolute inset-0 bg-[linear-gradient(160deg,rgba(255,255,255,.82),rgba(246,242,234,.66))]" />
+                  <div className="absolute -right-14 -top-14 h-44 w-44 rounded-full bg-white/45 blur-2xl" />
+                  <div className="absolute -bottom-16 -left-14 h-44 w-44 rounded-full bg-white/35 blur-2xl" />
+                  <div className="relative w-full rounded-3xl border border-white/70 bg-white/45 p-4 text-center shadow-[0_25px_60px_-38px_rgba(0,0,0,.45)] backdrop-blur md:p-7">
+                    <p className="mx-auto mb-3 inline-flex rounded-full border border-white/80 bg-white/65 px-4 py-1 text-xs tracking-[0.18em] text-[var(--color-muted)]">
+                      WEDDING DAY
+                    </p>
                     <h1 className={`text-5xl md:text-6xl ${theme.titleClass}`}>{couple.wedding.title.replace("+", "&")}</h1>
-                    <p className={`mt-2 text-xl ${theme.mutedClass}`}>{date}</p>
+                    <p className={`mt-2 text-2xl font-medium ${theme.mutedClass}`}>{date}</p>
                     <div className="mt-6 grid grid-cols-4 gap-2">
                       {[
                         [String(Math.max(1, couple.guests.length || 42)), "DIAS"],
@@ -68,14 +75,16 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                         ["22", "MIN"],
                         ["05", "SEG"],
                       ].map(([value, label]) => (
-                        <div key={label} className="rounded-xl border border-white/70 bg-white/70 p-2">
-                          <p className="text-2xl">{value}</p>
-                          <p className="text-xs text-[var(--color-muted)]">{label}</p>
+                        <div key={label} className="rounded-2xl border border-white/80 bg-white/80 p-2 shadow-[0_12px_26px_-20px_rgba(0,0,0,.45)]">
+                          <p className="text-3xl leading-tight">{value}</p>
+                          <p className="text-[11px] tracking-[0.12em] text-[var(--color-muted)]">{label}</p>
                         </div>
                       ))}
                     </div>
                     <Link href={`/${slug}/presentes`}>
-                      <Button className="mt-6 w-full md:w-auto md:px-10">Presentear os noivos</Button>
+                      <Button className="mt-6 w-full rounded-xl bg-[linear-gradient(120deg,#111,#2d2d2d)] py-6 text-base md:w-auto md:px-12">
+                        Presentear os noivos
+                      </Button>
                     </Link>
                   </div>
                 </div>
