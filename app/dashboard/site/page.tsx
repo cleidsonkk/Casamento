@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -98,13 +98,13 @@ export default function DashboardSitePage() {
   }
 
   return (
-    <Card className="max-w-4xl border-white/70 bg-white/75 p-6 backdrop-blur">
+    <Card className="w-full max-w-4xl border-white/70 bg-white/75 p-4 backdrop-blur md:p-6">
       <h1 className="mb-4 text-3xl">Site do casamento</h1>
       <form className="space-y-3" onSubmit={saveForm}>
-        <Input name="title" defaultValue={wedding.title ?? ""} placeholder="Título" />
-        <Input name="subtitle" defaultValue={wedding.subtitle ?? ""} placeholder="Subtítulo" />
+        <Input name="title" defaultValue={wedding.title ?? ""} placeholder="Titulo" />
+        <Input name="subtitle" defaultValue={wedding.subtitle ?? ""} placeholder="Subtitulo" />
         <Input name="location" defaultValue={wedding.location ?? ""} placeholder="Local" />
-        <Textarea name="story" defaultValue={wedding.story ?? ""} placeholder="História" />
+        <Textarea name="story" defaultValue={wedding.story ?? ""} placeholder="Historia" />
 
         <div className="space-y-2 rounded-2xl border border-[var(--color-border)] bg-white/70 p-3">
           <p className="text-sm font-medium">Template (aplica instantaneamente)</p>
@@ -132,7 +132,7 @@ export default function DashboardSitePage() {
           </p>
         </div>
 
-        <div className="flex gap-4 text-sm">
+        <div className="flex flex-wrap gap-4 text-sm">
           <label>
             <input type="checkbox" name="published" defaultChecked={Boolean(wedding.published)} /> Publicado
           </label>
@@ -144,9 +144,8 @@ export default function DashboardSitePage() {
           </label>
         </div>
 
-        <Button>Salvar informações</Button>
+        <Button className="w-full md:w-auto">Salvar informacoes</Button>
       </form>
     </Card>
   );
 }
-
