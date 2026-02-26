@@ -66,8 +66,21 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                     <p className="mx-auto mb-3 inline-flex rounded-full border border-white/80 bg-white/65 px-4 py-1 text-xs tracking-[0.18em] text-[var(--color-muted)]">
                       WEDDING DAY
                     </p>
-                    <h1 className={`text-5xl md:text-6xl ${theme.titleClass}`}>{couple.wedding.title.replace("+", "&")}</h1>
-                    <p className={`mt-2 text-2xl font-medium ${theme.mutedClass}`}>{date}</p>
+                    <div className="mt-1 flex items-center justify-center gap-3 md:gap-4">
+                      <span className="h-px w-8 bg-gradient-to-r from-transparent via-[#b8915a] to-transparent md:w-14" />
+                      <span className="h-px w-8 bg-gradient-to-r from-transparent via-[#b8915a] to-transparent md:hidden" />
+                    </div>
+                    <h1
+                      className={`mt-2 text-6xl font-semibold leading-[0.95] tracking-[-0.03em] md:text-7xl ${theme.titleClass} [text-shadow:0_3px_18px_rgba(0,0,0,.2)]`}
+                      style={{
+                        backgroundImage: "linear-gradient(180deg,#f8e7b8 0%,#d1a45a 45%,#8e6532 100%)",
+                        WebkitBackgroundClip: "text",
+                        color: "transparent",
+                      }}
+                    >
+                      {couple.wedding.title.replace("+", "&")}
+                    </h1>
+                    <p className={`mt-2 text-2xl font-semibold tracking-[0.05em] ${theme.mutedClass}`}>{date}</p>
                     <div className="mt-6 grid grid-cols-4 gap-2">
                       {[
                         [String(Math.max(1, couple.guests.length || 42)), "DIAS"],
