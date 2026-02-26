@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-type Template = { id: string; name: string };
+type Template = { id: string; name: string; key?: string; tokensJson?: Record<string, string> };
 type Wedding = {
   title?: string;
   subtitle?: string;
@@ -19,73 +20,131 @@ type Wedding = {
   templateId?: string;
 };
 
+function applyTemplatePreview(tokens?: Record<string, string>) {
+  if (!tokens) return;
+  const root = document.documentElement;
+  const body = document.body;
+  root.style.setProperty("--color-bg", tokens.background ?? "#f8f7f4");
+  root.style.setProperty("--color-card", tokens.card ?? "#ffffff");
+  root.style.setProperty("--color-text", tokens.text ?? "#111111");
+  root.style.setProperty("--color-muted", tokens.muted ?? "#6f6f6f");
+  root.style.setProperty("--color-primary", tokens.primary ?? "#111111");
+  root.style.setProperty("--color-border", tokens.border ?? "#ececec");
+  root.style.setProperty("--radius-card", tokens.radiusCard ?? "1.25rem");
+  root.style.setProperty("--radius-button", tokens.radiusButton ?? "999px");
+  root.style.setProperty("--radius-input", tokens.radiusInput ?? "0.9rem");
+  if (tokens.fontHeading) root.style.setProperty("--font-heading", tokens.fontHeading);
+  if (tokens.fontBody) root.style.setProperty("--font-body", tokens.fontBody);
+  body.style.background = `radial-gradient(circle at top, #ffffff 0%, ${tokens.background ?? "#f8f7f4"} 58%, #e8e8e8 100%)`;
+}
+
 export default function DashboardSitePage() {
   const [wedding, setWedding] = useState<Wedding>({});
   const [templates, setTemplates] = useState<Template[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+  const router = useRouter();
+
+  const selectedTemplate = useMemo(
+    () => templates.find((template) => template.id === selectedTemplateId),
+    [selectedTemplateId, templates],
+  );
 
   useEffect(() => {
     fetch("/api/dashboard/site")
-      .then((r) => r.json())
+      .then((response) => response.json())
       .then((data) => {
-        setWedding(data?.wedding ?? {});
-        setTemplates(data?.templates ?? []);
+        const nextWedding = data?.wedding ?? {};
+        const nextTemplates = data?.templates ?? [];
+        setWedding(nextWedding);
+        setTemplates(nextTemplates);
+        setSelectedTemplateId(nextWedding.templateId ?? "");
+        const initial = nextTemplates.find((template: Template) => template.id === nextWedding.templateId);
+        applyTemplatePreview(initial?.tokensJson);
       });
   }, []);
 
-  async function save(e: React.FormEvent<HTMLFormElement>) {
+  async function saveForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const fd = new FormData(e.currentTarget);
+    const formData = new FormData(e.currentTarget);
     const payload = {
-      title: fd.get("title"),
-      subtitle: fd.get("subtitle"),
-      story: fd.get("story"),
-      location: fd.get("location"),
-      published: fd.get("published") === "on",
-      isRsvpOpen: fd.get("isRsvpOpen") === "on",
-      rsvpRestricted: fd.get("rsvpRestricted") === "on",
-      templateId: fd.get("templateId"),
+      title: formData.get("title"),
+      subtitle: formData.get("subtitle"),
+      story: formData.get("story"),
+      location: formData.get("location"),
+      published: formData.get("published") === "on",
+      isRsvpOpen: formData.get("isRsvpOpen") === "on",
+      rsvpRestricted: formData.get("rsvpRestricted") === "on",
+      templateId: selectedTemplateId,
     };
     const res = await fetch("/api/dashboard/site", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-    if (!res.ok) return toast.error("Save failed");
-    toast.success("Site updated");
+    if (!res.ok) return toast.error("Falha ao salvar");
+    toast.success("Site atualizado");
+    router.refresh();
+  }
+
+  async function saveTemplateInstant(templateId: string) {
+    const res = await fetch("/api/dashboard/site", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ templateId }),
+    });
+    if (!res.ok) return toast.error("Falha ao aplicar template");
+    toast.success("Template aplicado");
+    router.refresh();
   }
 
   return (
-    <Card className="max-w-3xl p-6">
-      <h1 className="mb-4 text-3xl">Wedding site</h1>
-      <form className="space-y-3" onSubmit={save}>
-        <Input name="title" defaultValue={wedding.title ?? ""} placeholder="Title" />
-        <Input name="subtitle" defaultValue={wedding.subtitle ?? ""} placeholder="Subtitle" />
-        <Input name="location" defaultValue={wedding.location ?? ""} placeholder="Location" />
-        <Textarea name="story" defaultValue={wedding.story ?? ""} placeholder="Story" />
-        <select
-          name="templateId"
-          defaultValue={wedding.templateId ?? ""}
-          className="h-11 w-full rounded-[var(--radius-input)] border bg-white px-3 text-sm"
-        >
-          <option value="">Current template</option>
-          {templates.map((template) => (
-            <option key={template.id} value={template.id}>
-              {template.name}
-            </option>
-          ))}
-        </select>
+    <Card className="max-w-4xl border-white/70 bg-white/75 p-6 backdrop-blur">
+      <h1 className="mb-4 text-3xl">Site do casamento</h1>
+      <form className="space-y-3" onSubmit={saveForm}>
+        <Input name="title" defaultValue={wedding.title ?? ""} placeholder="Título" />
+        <Input name="subtitle" defaultValue={wedding.subtitle ?? ""} placeholder="Subtítulo" />
+        <Input name="location" defaultValue={wedding.location ?? ""} placeholder="Local" />
+        <Textarea name="story" defaultValue={wedding.story ?? ""} placeholder="História" />
+
+        <div className="space-y-2 rounded-2xl border border-[var(--color-border)] bg-white/70 p-3">
+          <p className="text-sm font-medium">Template (aplica instantaneamente)</p>
+          <select
+            name="templateId"
+            value={selectedTemplateId}
+            onChange={async (e) => {
+              const id = e.target.value;
+              setSelectedTemplateId(id);
+              const template = templates.find((item) => item.id === id);
+              applyTemplatePreview(template?.tokensJson);
+              await saveTemplateInstant(id);
+            }}
+            className="h-11 w-full rounded-[var(--radius-input)] border bg-white px-3 text-sm"
+          >
+            <option value="">Selecione um template</option>
+            {templates.map((template) => (
+              <option key={template.id} value={template.id}>
+                {template.name}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-[var(--color-muted)]">
+            {selectedTemplate ? `Template ativo: ${selectedTemplate.name}` : "Nenhum template selecionado"}
+          </p>
+        </div>
+
         <div className="flex gap-4 text-sm">
           <label>
-            <input type="checkbox" name="published" defaultChecked={Boolean(wedding.published)} /> Published
+            <input type="checkbox" name="published" defaultChecked={Boolean(wedding.published)} /> Publicado
           </label>
           <label>
-            <input type="checkbox" name="isRsvpOpen" defaultChecked={Boolean(wedding.isRsvpOpen)} /> RSVP open
+            <input type="checkbox" name="isRsvpOpen" defaultChecked={Boolean(wedding.isRsvpOpen)} /> RSVP aberto
           </label>
           <label>
-            <input type="checkbox" name="rsvpRestricted" defaultChecked={Boolean(wedding.rsvpRestricted)} /> RSVP restricted
+            <input type="checkbox" name="rsvpRestricted" defaultChecked={Boolean(wedding.rsvpRestricted)} /> RSVP restrito
           </label>
         </div>
-        <Button>Save</Button>
+
+        <Button>Salvar informações</Button>
       </form>
     </Card>
   );

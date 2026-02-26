@@ -1,60 +1,95 @@
 export type TemplateTheme = {
   key: string;
   shellClass: string;
-  panelClass: string;
+  frameClass: string;
+  navClass: string;
+  contentCardClass: string;
+  sidebarCardClass: string;
   heroImage: string;
   heroOverlay: string;
+  titleClass: string;
+  mutedClass: string;
   accent: string;
 };
 
 const themes: Record<string, TemplateTheme> = {
   "luxe-minimal": {
     key: "luxe-minimal",
-    shellClass: "bg-[radial-gradient(circle_at_top,#fffaf1_0%,#f8f1e5_45%,#efe4d4_100%)]",
-    panelClass: "border-amber-100/80 bg-white/75",
+    shellClass: "bg-[radial-gradient(circle_at_top,#fffaf1_0%,#f7efdf_45%,#ecdfc7_100%)]",
+    frameClass: "border-amber-100/80 bg-[#fdf8ef]/80",
+    navClass: "border-amber-200/55 bg-[#f5ead6]/70 text-[#6f5430]",
+    contentCardClass: "border-amber-100/70 bg-white/85",
+    sidebarCardClass: "border-amber-200/70 bg-[#fcf6ea]/85",
     heroImage: "https://images.unsplash.com/photo-1519741497674-611481863552?w=1800&q=80&auto=format&fit=crop",
-    heroOverlay: "bg-[linear-gradient(to_bottom,rgba(53,39,17,.25),rgba(53,39,17,.55))]",
-    accent: "#8e6d3b",
+    heroOverlay: "bg-[linear-gradient(to_bottom,rgba(107,83,43,.2),rgba(107,83,43,.45))]",
+    titleClass: "text-[#5a4427]",
+    mutedClass: "text-[#7e6b50]",
+    accent: "#9a7642",
   },
   "romantic-contemporary": {
     key: "romantic-contemporary",
-    shellClass: "bg-[radial-gradient(circle_at_top,#fff8fb_0%,#fdeff4_45%,#f7e5ed_100%)]",
-    panelClass: "border-rose-100/80 bg-white/75",
+    shellClass: "bg-[radial-gradient(circle_at_top,#fff7fb_0%,#fcecf3_46%,#f6deea_100%)]",
+    frameClass: "border-rose-100/80 bg-[#fff7fb]/80",
+    navClass: "border-rose-200/60 bg-[#fdeaf2]/70 text-[#95566d]",
+    contentCardClass: "border-rose-100/80 bg-white/85",
+    sidebarCardClass: "border-rose-200/70 bg-[#fff1f6]/85",
     heroImage: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1800&q=80&auto=format&fit=crop",
-    heroOverlay: "bg-[linear-gradient(to_bottom,rgba(86,37,52,.22),rgba(86,37,52,.55))]",
-    accent: "#b05674",
+    heroOverlay: "bg-[linear-gradient(to_bottom,rgba(123,56,86,.16),rgba(123,56,86,.48))]",
+    titleClass: "text-[#8e3f60]",
+    mutedClass: "text-[#9a6a80]",
+    accent: "#be6889",
   },
   "black-gold": {
     key: "black-gold",
-    shellClass: "bg-[radial-gradient(circle_at_top,#1a1a1a_0%,#101010_50%,#090909_100%)]",
-    panelClass: "border-amber-300/20 bg-black/45",
+    shellClass: "bg-[radial-gradient(circle_at_top,#1e1b16_0%,#14110e_48%,#090807_100%)]",
+    frameClass: "border-amber-300/25 bg-black/45",
+    navClass: "border-amber-300/30 bg-black/60 text-amber-100",
+    contentCardClass: "border-amber-300/20 bg-[#0d0d0d]/80",
+    sidebarCardClass: "border-amber-300/35 bg-[#12100c]/85",
     heroImage: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=1800&q=80&auto=format&fit=crop",
-    heroOverlay: "bg-[linear-gradient(to_bottom,rgba(0,0,0,.3),rgba(0,0,0,.7))]",
-    accent: "#d6b062",
+    heroOverlay: "bg-[linear-gradient(to_bottom,rgba(0,0,0,.25),rgba(0,0,0,.72))]",
+    titleClass: "text-amber-100",
+    mutedClass: "text-amber-50/70",
+    accent: "#d0a95a",
   },
   "destination-beach": {
     key: "destination-beach",
-    shellClass: "bg-[radial-gradient(circle_at_top,#f0fbff_0%,#e5f6ff_45%,#d5eef8_100%)]",
-    panelClass: "border-sky-100/80 bg-white/75",
+    shellClass: "bg-[radial-gradient(circle_at_top,#eefbff_0%,#dff2fb_46%,#cfe8f6_100%)]",
+    frameClass: "border-sky-100/85 bg-[#f4fbff]/80",
+    navClass: "border-sky-200/65 bg-[#e2f5ff]/65 text-[#34718f]",
+    contentCardClass: "border-sky-100/80 bg-white/85",
+    sidebarCardClass: "border-cyan-200/70 bg-[#ecf9ff]/85",
     heroImage: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1800&q=80&auto=format&fit=crop",
-    heroOverlay: "bg-[linear-gradient(to_bottom,rgba(18,85,112,.15),rgba(18,85,112,.45))]",
-    accent: "#1f84ae",
+    heroOverlay: "bg-[linear-gradient(to_bottom,rgba(23,86,112,.1),rgba(23,86,112,.45))]",
+    titleClass: "text-[#2f6986]",
+    mutedClass: "text-[#4f7f98]",
+    accent: "#2f9bc7",
   },
   "classic-elegance": {
     key: "classic-elegance",
-    shellClass: "bg-[radial-gradient(circle_at_top,#f8f8f8_0%,#f1efec_45%,#e8e3db_100%)]",
-    panelClass: "border-stone-200/80 bg-white/80",
+    shellClass: "bg-[radial-gradient(circle_at_top,#fbfaf8_0%,#f2efea_48%,#e7e1d8_100%)]",
+    frameClass: "border-stone-200/80 bg-[#faf8f5]/80",
+    navClass: "border-stone-200/70 bg-[#efebe4]/68 text-[#5b4f40]",
+    contentCardClass: "border-stone-200/80 bg-white/86",
+    sidebarCardClass: "border-stone-300/75 bg-[#f6f2ec]/88",
     heroImage: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1800&q=80&auto=format&fit=crop",
-    heroOverlay: "bg-[linear-gradient(to_bottom,rgba(45,40,32,.22),rgba(45,40,32,.5))]",
-    accent: "#5b4631",
+    heroOverlay: "bg-[linear-gradient(to_bottom,rgba(51,45,36,.18),rgba(51,45,36,.5))]",
+    titleClass: "text-[#473a2f]",
+    mutedClass: "text-[#7a6a58]",
+    accent: "#8a745e",
   },
   "modern-neutral": {
     key: "modern-neutral",
-    shellClass: "bg-[radial-gradient(circle_at_top,#f7f8fb_0%,#eceff5_48%,#dde3ee_100%)]",
-    panelClass: "border-slate-200/85 bg-white/78",
+    shellClass: "bg-[radial-gradient(circle_at_top,#f6f8fc_0%,#eaedf5_46%,#dde4ef_100%)]",
+    frameClass: "border-slate-200/85 bg-[#f8faff]/78",
+    navClass: "border-slate-200/70 bg-[#e8edf7]/68 text-[#425777]",
+    contentCardClass: "border-slate-200/80 bg-white/86",
+    sidebarCardClass: "border-slate-300/75 bg-[#edf2fb]/85",
     heroImage: "https://images.unsplash.com/photo-1513278974582-3e1b4a4fa21d?w=1800&q=80&auto=format&fit=crop",
-    heroOverlay: "bg-[linear-gradient(to_bottom,rgba(35,49,72,.18),rgba(35,49,72,.56))]",
-    accent: "#3f567a",
+    heroOverlay: "bg-[linear-gradient(to_bottom,rgba(39,58,89,.16),rgba(39,58,89,.55))]",
+    titleClass: "text-[#344a67]",
+    mutedClass: "text-[#5f738f]",
+    accent: "#4c6488",
   },
 };
 

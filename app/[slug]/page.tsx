@@ -58,7 +58,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
       </header>
 
       <section className="mx-auto max-w-6xl px-6 pb-8 pt-10">
-        <div className={`overflow-hidden rounded-[2rem] border ${theme.panelClass} shadow-[0_35px_80px_-45px_rgba(0,0,0,.55)]`}>
+        <div className={`overflow-hidden rounded-[2rem] border ${theme.frameClass} shadow-[0_35px_80px_-45px_rgba(0,0,0,.55)]`}>
           <div className="relative h-[31rem]">
             <img src={theme.heroImage} alt={couple.wedding.title} className="h-full w-full object-cover" />
             <div className={`absolute inset-0 ${theme.heroOverlay}`} />
@@ -137,4 +137,3 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
     </main>
   );
 }
-
