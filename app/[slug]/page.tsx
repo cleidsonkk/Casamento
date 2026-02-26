@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type React from "react";
-import type { WeddingSection } from "@prisma/client";
 import { db } from "@/lib/db";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AnimatedSection } from "@/components/public/animated-section";
+import { Card } from "@/components/ui/card";
 import { getGiftImageUrl } from "@/lib/gift-image";
 import { formatBRLFromCents } from "@/lib/currency";
 import { getTemplateTheme } from "@/lib/template-theme";
+
+function formatEventDate(date: Date | null | undefined) {
+  if (!date) return "12.12.2026";
+  return new Intl.DateTimeFormat("pt-BR").format(date).replaceAll("/", ".");
+}
 
 export default async function WeddingPublicPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -16,124 +18,133 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
     where: { slug },
     include: {
       wedding: { include: { template: true, sections: true } },
-      gifts: { where: { active: true }, include: { catalogItem: true }, take: 4, orderBy: { updatedAt: "desc" } },
+      gifts: { where: { active: true }, include: { catalogItem: true }, take: 6, orderBy: { updatedAt: "desc" } },
       pixSetting: true,
+      guests: true,
+      rsvps: true,
     },
   });
   if (!couple?.wedding?.published) notFound();
-  const tokens = (couple.wedding.template?.tokensJson ?? {}) as Record<string, string>;
+
   const theme = getTemplateTheme(couple.wedding.template?.key);
-  const dark = couple.wedding.template?.key === "black-gold";
+  const date = formatEventDate(couple.wedding.eventDate);
+  const confirmed = couple.rsvps.filter((r) => r.status === "YES").length;
 
   return (
-    <main
-      className={`min-h-screen ${theme.shellClass}`}
-      style={
-        {
-          "--color-bg": tokens.background ?? "#f8f7f4",
-          "--color-card": tokens.card ?? "#fff",
-          "--color-text": tokens.text ?? "#111",
-          "--color-muted": tokens.muted ?? "#6f6f6f",
-          "--color-primary": tokens.primary ?? "#111",
-          "--color-border": tokens.border ?? "#ececec",
-          "--radius-card": tokens.radiusCard ?? "1.25rem",
-          "--radius-button": tokens.radiusButton ?? "999px",
-          "--radius-input": tokens.radiusInput ?? "0.9rem",
-          "--font-heading": tokens.fontHeading ?? "var(--font-playfair)",
-        } as React.CSSProperties
-      }
-    >
-      <header className={`sticky top-0 z-40 border-b backdrop-blur ${dark ? "border-white/10 bg-black/40" : "border-black/10 bg-white/55"}`}>
-        <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <p className={`text-sm ${dark ? "text-white" : ""}`}>{couple.name}</p>
-          <div className="flex items-center gap-2">
-            <Link href={`/${slug}/rsvp`}>
-              <Button variant="ghost">RSVP</Button>
-            </Link>
-            <Link href={`/${slug}/presentes`}>
-              <Button>Presentes</Button>
-            </Link>
-          </div>
-        </nav>
-      </header>
+    <main className={`min-h-screen ${theme.shellClass}`}>
+      <div className="mx-auto max-w-7xl px-4 py-4 md:px-6 md:py-6">
+        <div className={`overflow-hidden rounded-[2rem] border shadow-[0_40px_80px_-50px_rgba(0,0,0,0.45)] ${theme.frameClass}`}>
+          <header className={`border-b px-4 py-4 md:px-8 ${theme.navClass}`}>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <nav className="flex flex-wrap items-center gap-5 text-sm md:gap-8 md:text-base">
+                <a href="#historia" className="border-b border-current pb-1">Historia</a>
+                <a href="#presentes">Lista de Presentes</a>
+                <a href={`/${slug}/rsvp`}>Confirmacao de Presenca</a>
+              </nav>
+              <Link href={`/${slug}/rsvp`}>
+                <Button variant="outline" className="px-6">
+                  Confirmar Presenca
+                </Button>
+              </Link>
+            </div>
+          </header>
 
-      <section className="mx-auto max-w-6xl px-6 pb-8 pt-10">
-        <div className={`overflow-hidden rounded-[2rem] border ${theme.frameClass} shadow-[0_35px_80px_-45px_rgba(0,0,0,.55)]`}>
-          <div className="relative h-[31rem]">
-            <img src={theme.heroImage} alt={couple.wedding.title} className="h-full w-full object-cover" />
-            <div className={`absolute inset-0 ${theme.heroOverlay}`} />
-            <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center text-white">
-              <p className="mb-2 text-xs tracking-[0.22em]">CASAMENTO</p>
-              <h1 className="text-6xl drop-shadow-xl">{couple.wedding.title}</h1>
-              <p className="mt-4 max-w-2xl text-lg text-white/90">{couple.wedding.subtitle}</p>
-              <div className="mt-8 flex gap-3">
-                <Link href={`/${slug}/rsvp`}>
-                  <Button>Confirmar Presenca</Button>
-                </Link>
-                <Link href={`/${slug}/presentes`}>
-                  <Button variant="outline">Ver lista de presentes</Button>
-                </Link>
+          <section className="p-3 md:p-6">
+            <div className="overflow-hidden rounded-3xl border border-white/60 bg-white/60 backdrop-blur">
+              <div className="grid lg:grid-cols-12">
+                <div className="relative min-h-[19rem] lg:col-span-7">
+                  <img src={theme.heroImage} alt={couple.wedding.title} className="h-full w-full object-cover" />
+                  <div className={`absolute inset-0 ${theme.heroOverlay}`} />
+                </div>
+                <div className="flex items-center justify-center p-6 md:p-10 lg:col-span-5">
+                  <div className="w-full text-center">
+                    <h1 className={`text-5xl md:text-6xl ${theme.titleClass}`}>{couple.wedding.title.replace("+", "&")}</h1>
+                    <p className={`mt-2 text-xl ${theme.mutedClass}`}>{date}</p>
+                    <div className="mt-6 grid grid-cols-4 gap-2">
+                      {[
+                        [String(Math.max(1, couple.guests.length || 42)), "DIAS"],
+                        ["14", "HORAS"],
+                        ["22", "MIN"],
+                        ["05", "SEG"],
+                      ].map(([value, label]) => (
+                        <div key={label} className="rounded-xl border border-white/70 bg-white/70 p-2">
+                          <p className="text-2xl">{value}</p>
+                          <p className="text-xs text-[var(--color-muted)]">{label}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <Link href={`/${slug}/presentes`}>
+                      <Button className="mt-6 w-full md:w-auto md:px-10">Presentear os noivos</Button>
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
+          </section>
 
-      <section className="mx-auto grid max-w-6xl gap-6 px-6 pb-20 lg:grid-cols-12">
-        <div className="space-y-6 lg:col-span-8">
-          {couple.wedding.sections.map((section: WeddingSection) => (
-            <AnimatedSection key={section.id}>
-              <Card className={`p-6 ${dark ? "bg-black/50 text-white" : ""}`}>
-                <h2 className="mb-2 text-3xl">{section.title ?? section.type}</h2>
-                <p className={dark ? "text-white/80" : "text-[var(--color-muted)]"}>{section.content}</p>
-              </Card>
-            </AnimatedSection>
-          ))}
-
-          <AnimatedSection>
-            <Card className={`p-6 ${dark ? "bg-black/50 text-white" : ""}`}>
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-3xl">Lista de Presentes</h2>
-                <Link href={`/${slug}/presentes`}>
-                  <Button variant="outline">Ver completa</Button>
-                </Link>
+          <section className="px-3 pb-3 md:px-6 md:pb-6">
+            <Card className="grid gap-3 border-white/70 bg-white/75 p-4 md:grid-cols-3">
+              <div className="rounded-xl border bg-white/80 p-3">
+                <p className="text-3xl">{confirmed}</p>
+                <p className="text-sm text-[var(--color-muted)]">Confirmados</p>
               </div>
-              <div className="grid gap-3 md:grid-cols-2">
-                {couple.gifts.map((gift) => (
-                  <div key={gift.id} className={`overflow-hidden rounded-xl border ${dark ? "border-white/20 bg-black/35" : "bg-white/85"}`}>
-                    <img
-                      src={getGiftImageUrl(gift.catalogItem.imageUrl, gift.catalogItem.title, gift.catalogItem.category)}
-                      alt={gift.catalogItem.title}
-                      className="h-36 w-full object-cover"
-                    />
-                    <div className="space-y-1 p-3">
-                      <p className={`text-xs ${dark ? "text-white/70" : "text-[var(--color-muted)]"}`}>{gift.catalogItem.category}</p>
-                      <p className="text-lg">{gift.catalogItem.title}</p>
-                      <p className="text-sm font-semibold">{formatBRLFromCents(gift.priceCents)}</p>
-                    </div>
-                  </div>
-                ))}
+              <div className="rounded-xl border bg-white/80 p-3">
+                <p className="text-3xl">{couple.gifts.length}</p>
+                <p className="text-sm text-[var(--color-muted)]">Presentes ativos</p>
+              </div>
+              <div className="rounded-xl border bg-white/80 p-3">
+                <p className="text-xl">{couple.name.toLowerCase().replaceAll(" ", "")}.com</p>
+                <p className="text-sm text-[var(--color-muted)]">Link do casal</p>
               </div>
             </Card>
-          </AnimatedSection>
-        </div>
+          </section>
 
-        <div className="space-y-6 lg:col-span-4">
-          <Card className={`p-6 ${dark ? "bg-black/50 text-white" : ""}`}>
-            <h3 className="mb-2 text-2xl">Pagamento Pix</h3>
-            <p className={`mb-4 text-sm ${dark ? "text-white/80" : "text-[var(--color-muted)]"}`}>
-              {couple.pixSetting?.enabled ? "Checkout instantaneo com QR Code e Pix Copia e Cola." : "Pix temporariamente indisponivel."}
-            </p>
-            <Link href={`/${slug}/presentes`}>
-              <Button className="w-full">Ir para presentes</Button>
-            </Link>
-          </Card>
-          <Card className={`p-6 ${dark ? "bg-black/50 text-white" : ""}`}>
-            <h3 className="mb-2 text-xl">Template atual</h3>
-            <p className={dark ? "text-white/80" : "text-[var(--color-muted)]"}>{couple.wedding.template?.name ?? "Template customizado"}</p>
-          </Card>
+          <section className="grid gap-4 px-3 pb-8 md:px-6 lg:grid-cols-12">
+            <div className="space-y-4 lg:col-span-8">
+              <Card id="historia" className="grid gap-4 border-white/70 bg-white/80 p-4 md:grid-cols-12 md:p-6">
+                <img
+                  src="https://images.unsplash.com/photo-1529636798458-92182e662485?w=1200&q=80&auto=format&fit=crop"
+                  alt="Historia do casal"
+                  className="h-56 w-full rounded-2xl object-cover md:col-span-5"
+                />
+                <div className="md:col-span-7">
+                  <h2 className={`text-4xl ${theme.titleClass}`}>Historia do Casal</h2>
+                  <p className="mt-3 text-[var(--color-muted)]">
+                    {couple.wedding.story ?? "Uma historia de amor, parceria e celebracao com as pessoas mais importantes."}
+                  </p>
+                  <Link href={`/${slug}/rsvp`}>
+                    <Button variant="outline" className="mt-4">Nossa Historia</Button>
+                  </Link>
+                </div>
+              </Card>
+            </div>
+
+            <aside id="presentes" className="lg:col-span-4">
+              <Card className={`border-white/70 p-4 ${theme.sidebarCardClass}`}>
+                <h3 className={`text-3xl ${theme.titleClass}`}>Lista de Presentes</h3>
+                <p className="mb-4 mt-1 text-sm text-[var(--color-muted)]">Contribua com um presente via Pix.</p>
+                <div className="space-y-3">
+                  {couple.gifts.slice(0, 4).map((gift) => (
+                    <div key={gift.id} className="rounded-xl border bg-white/80 p-2">
+                      <img
+                        src={getGiftImageUrl(gift.catalogItem.imageUrl, gift.catalogItem.title, gift.catalogItem.category)}
+                        alt={gift.catalogItem.title}
+                        className="h-28 w-full rounded-lg object-cover"
+                      />
+                      <p className="mt-2 text-sm">{gift.catalogItem.title}</p>
+                      <p className="text-xs text-[var(--color-muted)]">{formatBRLFromCents(gift.priceCents)}</p>
+                      <Link href={`/${slug}/presentes`}>
+                        <Button variant="outline" className="mt-2 w-full">Dar presente</Button>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </aside>
+          </section>
         </div>
-      </section>
+      </div>
     </main>
   );
 }
+
