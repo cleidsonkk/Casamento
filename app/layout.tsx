@@ -8,8 +8,8 @@ const playfair = Playfair_Display({ variable: "--font-playfair", subsets: ["lati
 const cormorant = Cormorant_Garamond({ variable: "--font-cormorant", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Wedding SaaS",
-  description: "SaaS premium de casamento com RSVP, presentes e Pix",
+  title: "AUREA WEDDINGS",
+  description: "Luxury wedding platform com RSVP, presentes e Pix",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -22,4 +22,3 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
-

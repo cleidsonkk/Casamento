@@ -18,8 +18,8 @@ export default function HomePage() {
           transition={{ duration: 0.45, ease: "easeOut" }}
         >
           <div>
-            <p className="text-sm tracking-[0.24em] text-[#776a56]">CASAMENTO SAAS</p>
-            <p className="text-xs text-[#8a806f]">Plataforma premium para casais e convidados</p>
+            <p className="text-sm tracking-[0.24em] text-[#776a56]">AUREA WEDDINGS</p>
+            <p className="text-xs text-[#8a806f]">Luxury wedding platform for modern couples</p>
           </div>
           <Link href="/login">
             <Button variant="outline" className="rounded-full px-6">
@@ -41,23 +41,23 @@ export default function HomePage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.35, delay: 0.2 }}
             >
-              PADRAO 2026
+              LUXURY SAAS 2026
             </motion.p>
             <h1 className="text-5xl leading-[0.95] md:text-7xl">
-              Site de casamento
+              A marca premium
               <span className="block bg-gradient-to-r from-[#8f6324] via-[#c89748] to-[#875a1d] bg-clip-text text-transparent">
-                realmente profissional
+                para casamentos de alto padrao
               </span>
             </h1>
             <p className="mt-5 max-w-xl text-lg text-[#61594d]">
-              RSVP inteligente, lista de presentes com Pix e dashboard completo para noivos, em uma experiencia premium e confiavel.
+              AUREA WEDDINGS combina design editorial, RSVP inteligente, presentes com Pix e operacao completa para noivos e convidados.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
               <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
                 <Link href="/ana-e-bruno">
                   <Button className="rounded-full bg-[linear-gradient(110deg,#8a5d1f,#c08b36,#d8a746)] px-7 py-6 text-base text-white">
-                    Ver site publicado
+                    Ver demonstracao ao vivo
                   </Button>
                 </Link>
               </motion.div>
