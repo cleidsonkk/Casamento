@@ -1,33 +1,57 @@
-function categoryEmoji(category: string) {
-  const c = (category || "").toLowerCase();
-  if (c.includes("cozinha")) return "🍽️";
-  if (c.includes("quarto")) return "🛏️";
-  if (c.includes("decor")) return "🕯️";
-  if (c.includes("organ")) return "🧺";
-  if (c.includes("viagem")) return "✈️";
-  if (c.includes("exper")) return "🎟️";
-  if (c.includes("transporte")) return "🚗";
-  if (c.includes("cotas")) return "💝";
-  return "🎁";
+function normalize(value: string) {
+  return (value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function hashCode(value: string) {
+  let hash = 0;
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash << 5) - hash + value.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+function keywordFromGift(title: string, category: string) {
+  const t = normalize(title);
+  const c = normalize(category);
+
+  if (t.includes("talher")) return "cutlery";
+  if (t.includes("panela")) return "cooking-pot";
+  if (t.includes("jantar") || t.includes("prato")) return "dinner-table";
+  if (t.includes("taca") || t.includes("copo")) return "wine-glass";
+  if (t.includes("cafeteira") || t.includes("cafe")) return "coffee-maker";
+  if (t.includes("air fryer")) return "air-fryer";
+  if (t.includes("liquidificador")) return "blender";
+  if (t.includes("micro-ondas")) return "microwave";
+  if (t.includes("cama") || t.includes("edredom")) return "bedroom";
+  if (t.includes("toalha") || t.includes("banho")) return "bathroom";
+  if (t.includes("almofada") || t.includes("tapete")) return "home-decor";
+  if (t.includes("poltrona")) return "armchair";
+  if (t.includes("luminaria")) return "lamp";
+  if (t.includes("organizador") || t.includes("caixa") || t.includes("cabide")) return "closet-organization";
+  if (t.includes("mala")) return "luggage";
+  if (t.includes("passagem") || t.includes("aviao")) return "airplane-travel";
+  if (t.includes("hotel")) return "hotel-room";
+  if (t.includes("jantar romantico")) return "romantic-dinner";
+  if (t.includes("barco")) return "boat-trip";
+  if (t.includes("spa")) return "spa";
+  if (t.includes("carro") || c.includes("transporte")) return "car";
+  if (c.includes("cozinha")) return "kitchen";
+  if (c.includes("quarto")) return "bedroom";
+  if (c.includes("decoracao")) return "interior-design";
+  if (c.includes("organizacao")) return "organization";
+  if (c.includes("viagem")) return "travel";
+  if (c.includes("experiencias")) return "experience";
+  return "gift";
 }
 
 export function getGiftImageUrl(imageUrl: string | null | undefined, title: string, category: string) {
   if (imageUrl) return imageUrl;
-  const emoji = categoryEmoji(category);
-  const safeTitle = (title || "Presente").replace(/[<>&"]/g, "");
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='900'>
-  <defs>
-    <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
-      <stop offset='0%' stop-color='#faf7f2'/>
-      <stop offset='100%' stop-color='#efe7db'/>
-    </linearGradient>
-  </defs>
-  <rect width='100%' height='100%' fill='url(#g)'/>
-  <rect x='48' y='48' width='1104' height='804' rx='40' fill='white' fill-opacity='0.82'/>
-  <text x='600' y='390' text-anchor='middle' font-size='140'>${emoji}</text>
-  <text x='600' y='500' text-anchor='middle' font-size='52' font-family='serif' fill='#3f3b33'>${safeTitle}</text>
-  <text x='600' y='560' text-anchor='middle' font-size='28' font-family='sans-serif' fill='#8b8478'>Ilustracao premium</text>
-  </svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  const keyword = keywordFromGift(title, category);
+  const lock = hashCode(`${title}-${category}`);
+  return `https://loremflickr.com/1200/900/${keyword}?lock=${lock}`;
 }
 
