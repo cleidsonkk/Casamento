@@ -14,11 +14,22 @@ type Wedding = {
   subtitle?: string;
   story?: string;
   location?: string;
+  eventDate?: string;
   published?: boolean;
   isRsvpOpen?: boolean;
   rsvpRestricted?: boolean;
   templateId?: string;
 };
+
+function formatDateInput(value?: string) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 
 function applyTemplatePreview(tokens?: Record<string, string>) {
   if (!tokens) return;
@@ -75,6 +86,7 @@ export default function DashboardSitePage() {
       subtitle: formData.get("subtitle"),
       story: formData.get("story"),
       location: formData.get("location"),
+      eventDate: formData.get("eventDate"),
       published: formData.get("published") === "on",
       isRsvpOpen: formData.get("isRsvpOpen") === "on",
       rsvpRestricted: formData.get("rsvpRestricted") === "on",
@@ -122,6 +134,7 @@ export default function DashboardSitePage() {
         <Input name="title" defaultValue={wedding.title ?? ""} placeholder="Titulo" />
         <Input name="subtitle" defaultValue={wedding.subtitle ?? ""} placeholder="Subtitulo" />
         <Input name="location" defaultValue={wedding.location ?? ""} placeholder="Local" />
+        <Input name="eventDate" type="date" defaultValue={formatDateInput(wedding.eventDate)} />
         <Textarea name="story" defaultValue={wedding.story ?? ""} placeholder="Historia" />
 
         <div className="space-y-2 rounded-2xl border border-[var(--color-border)] bg-white/70 p-3">

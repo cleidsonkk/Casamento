@@ -23,6 +23,8 @@ export async function PUT(req: Request) {
   try {
     const { coupleId, userId } = await requireCoupleContext();
     const body = await req.json();
+    const eventDateRaw = typeof body.eventDate === "string" ? body.eventDate.trim() : "";
+    const eventDate = eventDateRaw ? new Date(`${eventDateRaw}T12:00:00`) : null;
     const wedding = await db.wedding.update({
       where: { coupleId },
       data: {
@@ -30,6 +32,7 @@ export async function PUT(req: Request) {
         subtitle: body.subtitle,
         story: body.story,
         location: body.location,
+        eventDate: eventDate && !Number.isNaN(eventDate.getTime()) ? eventDate : null,
         published: Boolean(body.published),
         rsvpRestricted: Boolean(body.rsvpRestricted),
         isRsvpOpen: Boolean(body.isRsvpOpen),
