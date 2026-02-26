@@ -1,6 +1,7 @@
-"use client";
+﻿"use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,30 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
   const [category, setCategory] = useState("all");
   const [sort, setSort] = useState<"asc" | "desc">("asc");
   const [selected, setSelected] = useState<Gift | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!selected) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const timeout = window.setTimeout(() => nameInputRef.current?.focus(), 40);
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSelected(null);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.clearTimeout(timeout);
+      window.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [selected]);
 
   const categories = useMemo(() => ["all", ...new Set(items.map((item) => item.category))], [items]);
   const filtered = useMemo(
@@ -49,11 +74,13 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
       message: formData.get("message"),
       hp: formData.get("website"),
     };
+
     const res = await fetch(`/api/public/${slug}/orders`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
+
     const data = await res.json();
     if (!res.ok) return toast.error(data.error ?? "Falha ao iniciar checkout");
     window.location.href = `/${slug}/pix/${data.orderId}`;
@@ -150,39 +177,54 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
         ))}
       </div>
 
-      <AnimatePresence>
-        {selected && (
-          <motion.div
-            className="fixed inset-0 z-50 grid place-items-center bg-black/35 p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              className="w-full max-w-md rounded-3xl border bg-white p-6 shadow-2xl"
-              initial={{ y: 20, scale: 0.98 }}
-              animate={{ y: 0, scale: 1 }}
-              exit={{ y: 20, scale: 0.98 }}
-            >
-              <h3 className="mb-1 text-2xl">Finalizar presente</h3>
-              <p className="mb-4 text-sm text-[var(--color-muted)]">
-                {selected.title} • {formatBRLFromCents(selected.priceCents)}
-              </p>
-              <form className="space-y-3" onSubmit={checkout}>
-                <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" />
-                <Input name="name" placeholder="Seu nome" required />
-                <Textarea name="message" placeholder="Mensagem para os noivos" />
-                <div className="grid grid-cols-2 gap-2">
-                  <Button type="button" variant="outline" className="h-11 rounded-xl" onClick={() => setSelected(null)}>
-                    Cancelar
-                  </Button>
-                  <Button className="h-11 rounded-xl">Ir para Pix</Button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {mounted
+        ? createPortal(
+            <AnimatePresence>
+              {selected && (
+                <motion.div
+                  className="fixed inset-0 z-[120] flex items-center justify-center bg-black/45 p-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setSelected(null)}
+                >
+                  <motion.div
+                    className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl border border-white/70 bg-white p-5 shadow-[0_40px_90px_-45px_rgba(0,0,0,.65)] md:p-6"
+                    initial={{ y: 22, scale: 0.98 }}
+                    animate={{ y: 0, scale: 1 }}
+                    exit={{ y: 22, scale: 0.98 }}
+                    transition={{ duration: 0.2 }}
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    <h3 className="mb-1 text-2xl">Finalizar presente</h3>
+                    <p className="mb-4 text-sm text-[var(--color-muted)]">
+                      {selected.title} {" · "} {formatBRLFromCents(selected.priceCents)}
+                    </p>
+                    <form className="space-y-3" onSubmit={checkout}>
+                      <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" />
+                      <input
+                        ref={nameInputRef}
+                        name="name"
+                        placeholder="Seu nome"
+                        required
+                        className="h-11 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-white px-3 text-sm outline-none transition focus:ring-2 focus:ring-[var(--color-primary)]/20"
+                      />
+                      <Textarea name="message" placeholder="Mensagem para os noivos" />
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button type="button" variant="outline" className="h-11 rounded-xl" onClick={() => setSelected(null)}>
+                          Cancelar
+                        </Button>
+                        <Button className="h-11 rounded-xl">Ir para Pix</Button>
+                      </div>
+                    </form>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }
+
