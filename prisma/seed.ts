@@ -6,25 +6,80 @@ const prisma = new PrismaClient();
 const categories = [
   "Casa & Cozinha",
   "Quarto & Banho",
-  "Sala & Decoração",
-  "Organização",
+  "Sala & Decoracao",
+  "Organizacao",
   "Lua de Mel & Viagem",
-  "Experiências",
+  "Experiencias",
   "Transporte",
   "Cotas",
 ];
 
 const objects = [
-  "jogo de talheres", "conjunto de panelas", "aparelho de jantar", "taças de cristal", "cafeteira",
+  "jogo de talheres", "conjunto de panelas", "aparelho de jantar", "tacas de cristal", "cafeteira",
   "air fryer", "liquidificador", "micro-ondas", "roupa de cama", "toalhas macias",
-  "edredom premium", "almofadas decorativas", "tapete clean", "poltrona elegante", "luminária moderna",
-  "organizador de closet", "caixas empilháveis", "cabides premium", "malas de viagem", "passagens aéreas",
-  "diária de hotel", "jantar romântico", "passeio de barco", "spa para casal", "transfer aeroporto",
-  "aluguel de carro", "combustível viagem", "cota de lua de mel", "cota de fotografia", "cota de música",
+  "edredom premium", "almofadas decorativas", "tapete clean", "poltrona elegante", "luminaria moderna",
+  "organizador de closet", "caixas empilhaveis", "cabides premium", "malas de viagem", "passagens aereas",
+  "diaria de hotel", "jantar romantico", "passeio de barco", "spa para casal", "transfer aeroporto",
+  "aluguel de carro", "combustivel viagem", "cota de lua de mel", "cota de fotografia", "cota de musica",
 ];
 
 const promptFor = (obj: string) =>
-  `Ilustração 3D clean, estilo app premium 2026, objeto ${obj} centralizado, fundo off-white com leve degradê, iluminação de estúdio suave, sombra macia, ultra nítido, sem texto, sem logo, sem marca, composição minimalista, alta qualidade.`;
+  `Ilustracao 3D clean, estilo app premium 2026, objeto ${obj} centralizado, fundo off-white com leve degrade, iluminacao de estudio suave, sombra macia, ultra nitido, sem texto, sem logo, sem marca, composicao minimalista, alta qualidade.`;
+
+function normalize(value: string) {
+  return (value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function hashCode(value: string) {
+  let hash = 0;
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash << 5) - hash + value.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+function keywordFromGift(title: string, category: string) {
+  const t = normalize(title);
+  const c = normalize(category);
+  if (t.includes("talher")) return "cutlery";
+  if (t.includes("panela")) return "cooking-pot";
+  if (t.includes("jantar") || t.includes("prato")) return "dinner-table";
+  if (t.includes("taca") || t.includes("copo")) return "wine-glass";
+  if (t.includes("cafeteira") || t.includes("cafe")) return "coffee-maker";
+  if (t.includes("air fryer")) return "air-fryer";
+  if (t.includes("liquidificador")) return "blender";
+  if (t.includes("micro-ondas")) return "microwave";
+  if (t.includes("cama") || t.includes("edredom")) return "bedroom";
+  if (t.includes("toalha") || t.includes("banho")) return "bathroom";
+  if (t.includes("almofada") || t.includes("tapete")) return "home-decor";
+  if (t.includes("poltrona")) return "armchair";
+  if (t.includes("luminaria")) return "lamp";
+  if (t.includes("organizador") || t.includes("caixa") || t.includes("cabide")) return "closet-organization";
+  if (t.includes("mala")) return "luggage";
+  if (t.includes("passagem") || t.includes("aviao")) return "airplane-travel";
+  if (t.includes("hotel")) return "hotel-room";
+  if (t.includes("jantar romantico")) return "romantic-dinner";
+  if (t.includes("barco")) return "boat-trip";
+  if (t.includes("spa")) return "spa";
+  if (t.includes("carro") || c.includes("transporte")) return "car";
+  if (c.includes("cozinha")) return "kitchen";
+  if (c.includes("quarto")) return "bedroom";
+  if (c.includes("decoracao")) return "interior-design";
+  if (c.includes("organizacao")) return "organization";
+  if (c.includes("viagem")) return "travel";
+  if (c.includes("experiencias")) return "experience";
+  return "gift";
+}
+
+function giftPhotoUrl(title: string, category: string) {
+  const keyword = keywordFromGift(title, category);
+  const lock = hashCode(`${title}-${category}`);
+  return `https://loremflickr.com/1200/900/${keyword}?lock=${lock}`;
+}
 
 async function main() {
   const adminPass = await bcrypt.hash("admin123", 10);
@@ -96,17 +151,17 @@ async function main() {
       wedding: {
         create: {
           title: "Ana + Bruno",
-          subtitle: "Estamos prontos para celebrar com você",
-          story: "Nossa história começou com um café e agora celebramos uma vida inteira.",
-          location: "São Paulo, SP",
+          subtitle: "Estamos prontos para celebrar com voce",
+          story: "Nossa historia comecou com um cafe e agora celebramos uma vida inteira.",
+          location: "Sao Paulo, SP",
           published: true,
           isRsvpOpen: true,
           rsvpRestricted: true,
           templateId: defaultTemplate.id,
           sections: {
             create: [
-              { type: "story", title: "Nossa História", content: "Um amor com leveza e presença.", order: 1 },
-              { type: "details", title: "Detalhes", content: "Cerimônia às 16h e festa às 18h.", order: 2 },
+              { type: "story", title: "Nossa Historia", content: "Um amor com leveza e presenca.", order: 1 },
+              { type: "details", title: "Detalhes", content: "Cerimonia as 16h e festa as 18h.", order: 2 },
             ],
           },
         },
@@ -134,13 +189,14 @@ async function main() {
   for (let i = 0; i < 120; i += 1) {
     const obj = objects[i % objects.length];
     const category = categories[i % categories.length];
+    const title = `${obj[0].toUpperCase()}${obj.slice(1)} ${i + 1}`;
     catalog.push({
-      title: `${obj[0].toUpperCase()}${obj.slice(1)} ${i + 1}`,
+      title,
       category,
       description: `Item premium para ${category.toLowerCase()}.`,
       imageStyle: "3d_clean_2026",
       imagePrompt: promptFor(obj),
-      imageUrl: null,
+      imageUrl: giftPhotoUrl(title, category),
       tags: [category.toLowerCase(), "casamento", "premium"],
     });
   }
@@ -181,3 +237,4 @@ main()
     await prisma.$disconnect();
     process.exit(1);
   });
+

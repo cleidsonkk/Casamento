@@ -9,7 +9,8 @@
     "lint": "eslint",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "prisma db seed"
+    "prisma:seed": "prisma db seed",
+    "prisma:fill-images": "tsx prisma/fill-gift-images.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
