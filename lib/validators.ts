@@ -26,3 +26,9 @@ export const csvGuestSchema = z.object({
   passcode: z.string().optional(),
 });
 
+export const registerSchema = z.object({
+  yourName: z.string().min(3).max(120),
+  partnerName: z.string().min(3).max(120),
+  email: z.string().email().max(180),
+  password: z.string().min(6).max(80),
+});
