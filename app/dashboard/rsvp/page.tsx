@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
@@ -12,9 +12,32 @@ export default function RsvpDashboardPage() {
   }, []);
 
   return (
-    <Card className="p-5">
+    <Card className="p-4 md:p-5">
       <h1 className="mb-4 text-3xl">RSVPs</h1>
-      <div className="space-y-2">
+
+      <div className="space-y-3 md:hidden">
+        {items.map((item) => (
+          <div key={item.id} className="rounded-xl border bg-white/80 p-3">
+            <p className="font-medium">{item.guestName}</p>
+            <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <p className="text-xs text-[var(--color-muted)]">Status</p>
+                <p>{item.status}</p>
+              </div>
+              <div>
+                <p className="text-xs text-[var(--color-muted)]">Acompanhantes</p>
+                <p>{item.companions}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-xs text-[var(--color-muted)]">Data</p>
+                <p>{new Date(item.createdAt).toLocaleDateString("pt-BR")}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="hidden space-y-2 md:block">
         {items.map((item) => (
           <div key={item.id} className="grid grid-cols-4 rounded-xl border px-3 py-2 text-sm">
             <span>{item.guestName}</span>
@@ -27,4 +50,3 @@ export default function RsvpDashboardPage() {
     </Card>
   );
 }
-

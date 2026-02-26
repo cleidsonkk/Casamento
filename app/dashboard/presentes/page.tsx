@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -19,15 +19,19 @@ type GiftItem = {
   giftMode: "UNIQUE" | "REPEATABLE";
 };
 
+const PAGE_SIZE = 24;
+
 export default function GiftsDashboardPage() {
   const [rows, setRows] = useState<GiftItem[]>([]);
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     fetch("/api/dashboard/gifts")
       .then((r) => r.json())
       .then((data) => {
         const map = new Map<string, any>((data.gifts ?? []).map((g: any) => [g.catalogItemId, g]));
-        const merged = (data.catalog ?? []).slice(0, 50).map((item: any) => {
+        const merged = (data.catalog ?? []).map((item: any) => {
           const cents = map.get(item.id)?.priceCents ?? 10000;
           return {
             catalogItemId: item.id,
@@ -43,6 +47,16 @@ export default function GiftsDashboardPage() {
         setRows(merged);
       });
   }, []);
+
+  const filtered = useMemo(() => {
+    const q = query.toLowerCase().trim();
+    if (!q) return rows;
+    return rows.filter((row) => `${row.title} ${row.category}`.toLowerCase().includes(q));
+  }, [rows, query]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedRows = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   async function save() {
     const items = rows.map((row) => ({
@@ -67,64 +81,106 @@ export default function GiftsDashboardPage() {
   }
 
   return (
-    <Card className="p-5">
-      <div className="mb-3 flex items-center justify-between">
-        <h1 className="text-3xl">Presentes</h1>
+    <Card className="p-4 md:p-5">
+      <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-3xl">Presentes</h1>
+          <p className="text-sm text-[var(--color-muted)]">Catalogo completo com paginacao</p>
+        </div>
         <Button onClick={save}>Salvar</Button>
       </div>
-      <p className="mb-3 text-sm text-[var(--color-muted)]">Valores em Real brasileiro. Aceita vírgula ou ponto (ex: 120,50 ou 120.50).</p>
+
+      <input
+        value={query}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          setPage(1);
+        }}
+        placeholder="Buscar presente"
+        className="mb-3 h-11 w-full rounded-xl border bg-white px-3 text-sm outline-none"
+      />
+
+      <p className="mb-3 text-sm text-[var(--color-muted)]">
+        Valores em Real brasileiro. Aceita virgula ou ponto (ex: 120,50 ou 120.50).
+      </p>
+
       <div className="space-y-2">
-        {rows.map((row, idx) => (
-          <div key={row.catalogItemId} className="grid grid-cols-12 items-center gap-2 rounded-xl border p-2 text-sm">
-            <label className="col-span-1">
-              <input
-                type="checkbox"
-                checked={row.active}
-                onChange={(e) =>
-                  setRows((old) => old.map((r, i) => (i === idx ? { ...r, active: e.target.checked } : r)))
-                }
-              />
-            </label>
-            <div className="col-span-5 flex items-center gap-2">
-              <SmartImage
-                src={getGiftImageUrl(row.imageUrl, row.title, row.category)}
-                alt={row.title}
-                className="h-10 w-10 rounded-lg border object-cover"
-              />
-              <span>{row.title}</span>
-            </div>
-            <div className="col-span-3 flex items-center rounded-lg border bg-white px-2">
-              <span className="mr-1 text-[var(--color-muted)]">R$</span>
-              <input
-                className="w-full py-1 outline-none"
-                type="text"
-                inputMode="decimal"
-                value={row.priceInput}
+        {pagedRows.map((row) => {
+          const idx = rows.findIndex((item) => item.catalogItemId === row.catalogItemId);
+          return (
+            <div key={row.catalogItemId} className="grid grid-cols-1 items-center gap-2 rounded-xl border p-3 text-sm md:grid-cols-12">
+              <label className="md:col-span-1">
+                <input
+                  type="checkbox"
+                  checked={row.active}
+                  onChange={(e) =>
+                    setRows((old) => old.map((r, i) => (i === idx ? { ...r, active: e.target.checked } : r)))
+                  }
+                />
+                <span className="ml-2 md:hidden">Ativar</span>
+              </label>
+
+              <div className="md:col-span-5 flex items-center gap-2">
+                <SmartImage
+                  src={getGiftImageUrl(row.imageUrl, row.title, row.category)}
+                  alt={row.title}
+                  className="h-10 w-10 rounded-lg border object-cover"
+                />
+                <div>
+                  <span>{row.title}</span>
+                  <p className="text-xs text-[var(--color-muted)]">{row.category}</p>
+                </div>
+              </div>
+
+              <div className="md:col-span-3 flex items-center rounded-lg border bg-white px-2">
+                <span className="mr-1 text-[var(--color-muted)]">R$</span>
+                <input
+                  className="w-full py-1 outline-none"
+                  type="text"
+                  inputMode="decimal"
+                  value={row.priceInput}
+                  onChange={(e) =>
+                    setRows((old) =>
+                      old.map((r, i) =>
+                        i === idx ? { ...r, priceInput: e.target.value.replace(/[^\d.,]/g, "") } : r,
+                      ),
+                    )
+                  }
+                />
+              </div>
+
+              <select
+                className="md:col-span-3 rounded-lg border px-2 py-2"
+                value={row.giftMode}
                 onChange={(e) =>
                   setRows((old) =>
                     old.map((r, i) =>
-                      i === idx ? { ...r, priceInput: e.target.value.replace(/[^\d.,]/g, "") } : r,
+                      i === idx ? { ...r, giftMode: e.target.value as "UNIQUE" | "REPEATABLE" } : r,
                     ),
                   )
                 }
-              />
+              >
+                <option value="UNIQUE">UNIQUE</option>
+                <option value="REPEATABLE">REPEATABLE</option>
+              </select>
             </div>
-            <select
-              className="col-span-3 rounded-lg border px-2 py-1"
-              value={row.giftMode}
-              onChange={(e) =>
-                setRows((old) =>
-                  old.map((r, i) =>
-                    i === idx ? { ...r, giftMode: e.target.value as "UNIQUE" | "REPEATABLE" } : r,
-                  ),
-                )
-              }
-            >
-              <option value="UNIQUE">UNIQUE</option>
-              <option value="REPEATABLE">REPEATABLE</option>
-            </select>
-          </div>
-        ))}
+          );
+        })}
+      </div>
+
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-[var(--color-muted)]">
+          Exibindo {(currentPage - 1) * PAGE_SIZE + 1} - {Math.min(currentPage * PAGE_SIZE, filtered.length)} de {filtered.length}
+        </p>
+        <div className="flex items-center gap-2">
+          <Button type="button" variant="outline" onClick={() => setPage((p) => Math.max(1, p - 1))}>
+            Anterior
+          </Button>
+          <span className="text-sm">{currentPage}/{totalPages}</span>
+          <Button type="button" variant="outline" onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>
+            Proxima
+          </Button>
+        </div>
       </div>
     </Card>
   );

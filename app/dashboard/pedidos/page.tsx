@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -31,9 +31,29 @@ export default function OrdersDashboardPage() {
   }
 
   return (
-    <Card className="p-5">
+    <Card className="p-4 md:p-5">
       <h1 className="mb-4 text-3xl">Pedidos</h1>
-      <div className="space-y-2">
+
+      <div className="space-y-3 md:hidden">
+        {orders.map((o) => (
+          <div key={o.id} className="rounded-xl border bg-white/80 p-3">
+            <p className="text-xs text-[var(--color-muted)]">Convidado</p>
+            <p className="font-medium">{o.giverName}</p>
+            <p className="mt-2 text-xs text-[var(--color-muted)]">Presente</p>
+            <p>{o.weddingGift.catalogItem.title}</p>
+            <div className="mt-2 flex items-center justify-between text-sm">
+              <span>{o.status}</span>
+              <strong>{formatBRLFromCents(o.amountCents)}</strong>
+            </div>
+            <div className="mt-3 flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={() => confirm(o.id, "CANCELED")}>Cancelar</Button>
+              <Button className="flex-1" onClick={() => confirm(o.id, "PAID")}>Pago</Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="hidden space-y-2 md:block">
         {orders.map((o) => (
           <div key={o.id} className="grid grid-cols-12 items-center gap-2 rounded-xl border p-3 text-sm">
             <span className="col-span-3">{o.giverName}</span>
