@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { formatBRLFromCents } from "@/lib/currency";
+import { getGiftImageUrl } from "@/lib/gift-image";
 
 type Gift = {
   id: string;
@@ -79,7 +80,12 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
       <div className="grid gap-4 md:grid-cols-3">
         {filtered.map((gift) => (
           <Card key={gift.id} className="p-4 transition hover:-translate-y-0.5">
-            <div className="mb-3 h-36 rounded-xl bg-gradient-to-br from-neutral-100 to-neutral-50" />
+            <img
+              src={getGiftImageUrl(gift.imageUrl, gift.title, gift.category)}
+              alt={gift.title}
+              className="mb-3 h-36 w-full rounded-xl border object-cover"
+              loading="lazy"
+            />
             <p className="text-xs text-[var(--color-muted)]">{gift.category}</p>
             <h3 className="text-xl">{gift.title}</h3>
             <p className="mb-3 mt-1 text-sm text-[var(--color-muted)]">{gift.description}</p>

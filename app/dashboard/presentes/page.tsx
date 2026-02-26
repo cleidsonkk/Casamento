@@ -5,10 +5,13 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatCentsToInput, parseCurrencyInputToCents } from "@/lib/currency";
+import { getGiftImageUrl } from "@/lib/gift-image";
 
 type GiftItem = {
   catalogItemId: string;
   title: string;
+  category: string;
+  imageUrl?: string | null;
   active: boolean;
   priceCents: number;
   priceInput: string;
@@ -28,6 +31,8 @@ export default function GiftsDashboardPage() {
           return {
             catalogItemId: item.id,
             title: item.title,
+            category: item.category,
+            imageUrl: item.imageUrl ?? null,
             active: map.get(item.id)?.active ?? false,
             priceCents: cents,
             priceInput: formatCentsToInput(cents),
@@ -79,7 +84,14 @@ export default function GiftsDashboardPage() {
                 }
               />
             </label>
-            <span className="col-span-5">{row.title}</span>
+            <div className="col-span-5 flex items-center gap-2">
+              <img
+                src={getGiftImageUrl(row.imageUrl, row.title, row.category)}
+                alt={row.title}
+                className="h-10 w-10 rounded-lg border object-cover"
+              />
+              <span>{row.title}</span>
+            </div>
             <div className="col-span-3 flex items-center rounded-lg border bg-white px-2">
               <span className="mr-1 text-[var(--color-muted)]">R$</span>
               <input
@@ -116,4 +128,3 @@ export default function GiftsDashboardPage() {
     </Card>
   );
 }
-
