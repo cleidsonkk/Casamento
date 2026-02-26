@@ -14,7 +14,7 @@ const links = [
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   await requireSession();
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,#f8fafc_0%,#eef2f7_45%,#e4ebf4_100%)]">
       <header className="glass sticky top-0 z-30 border-b">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <p className="text-sm">Dashboard dos Noivos</p>

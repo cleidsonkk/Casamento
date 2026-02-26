@@ -8,24 +8,7 @@ import { Button } from "@/components/ui/button";
 import { AnimatedSection } from "@/components/public/animated-section";
 import { getGiftImageUrl } from "@/lib/gift-image";
 import { formatBRLFromCents } from "@/lib/currency";
-
-const heroByTemplate: Record<string, string> = {
-  "luxe-minimal": "https://images.unsplash.com/photo-1519741497674-611481863552?w=1600&q=80&auto=format&fit=crop",
-  "romantic-contemporary": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1600&q=80&auto=format&fit=crop",
-  "black-gold": "https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=1600&q=80&auto=format&fit=crop",
-  "destination-beach": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80&auto=format&fit=crop",
-  "classic-elegance": "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1600&q=80&auto=format&fit=crop",
-  "modern-neutral": "https://images.unsplash.com/photo-1513278974582-3e1b4a4fa21d?w=1600&q=80&auto=format&fit=crop",
-};
-
-const frameByTemplate: Record<string, string> = {
-  "luxe-minimal": "from-amber-50 to-stone-100",
-  "romantic-contemporary": "from-rose-50 to-neutral-100",
-  "black-gold": "from-neutral-900 to-neutral-800",
-  "destination-beach": "from-sky-100 to-cyan-50",
-  "classic-elegance": "from-zinc-50 to-stone-100",
-  "modern-neutral": "from-slate-100 to-zinc-50",
-};
+import { getTemplateTheme } from "@/lib/template-theme";
 
 export default async function WeddingPublicPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -39,14 +22,12 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
   });
   if (!couple?.wedding?.published) notFound();
   const tokens = (couple.wedding.template?.tokensJson ?? {}) as Record<string, string>;
-  const templateKey = couple.wedding.template?.key ?? "modern-neutral";
-  const heroUrl = heroByTemplate[templateKey] ?? heroByTemplate["modern-neutral"];
-  const heroFrame = frameByTemplate[templateKey] ?? frameByTemplate["modern-neutral"];
-  const darkTemplate = templateKey === "black-gold";
+  const theme = getTemplateTheme(couple.wedding.template?.key);
+  const dark = couple.wedding.template?.key === "black-gold";
 
   return (
     <main
-      className="min-h-screen"
+      className={`min-h-screen ${theme.shellClass}`}
       style={
         {
           "--color-bg": tokens.background ?? "#f8f7f4",
@@ -62,9 +43,9 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
         } as React.CSSProperties
       }
     >
-      <header className="glass sticky top-0 z-40 border-b">
+      <header className={`sticky top-0 z-40 border-b backdrop-blur ${dark ? "border-white/10 bg-black/40" : "border-black/10 bg-white/55"}`}>
         <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <p className="text-sm">{couple.name}</p>
+          <p className={`text-sm ${dark ? "text-white" : ""}`}>{couple.name}</p>
           <div className="flex items-center gap-2">
             <Link href={`/${slug}/rsvp`}>
               <Button variant="ghost">RSVP</Button>
@@ -76,21 +57,21 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
         </nav>
       </header>
 
-      <section className="mx-auto max-w-6xl px-6 pb-10 pt-14">
-        <div className={`overflow-hidden rounded-[2rem] border bg-gradient-to-br ${heroFrame}`}>
-          <div className="relative h-[28rem]">
-            <img src={heroUrl} alt={couple.wedding.title} className="h-full w-full object-cover" />
-            <div className={`absolute inset-0 ${darkTemplate ? "bg-black/55" : "bg-black/25"}`} />
+      <section className="mx-auto max-w-6xl px-6 pb-8 pt-10">
+        <div className={`overflow-hidden rounded-[2rem] border ${theme.panelClass} shadow-[0_35px_80px_-45px_rgba(0,0,0,.55)]`}>
+          <div className="relative h-[31rem]">
+            <img src={theme.heroImage} alt={couple.wedding.title} className="h-full w-full object-cover" />
+            <div className={`absolute inset-0 ${theme.heroOverlay}`} />
             <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center text-white">
-              <p className="mb-3 text-xs tracking-[0.22em]">CASAMENTO</p>
-              <h1 className="text-6xl drop-shadow">{couple.wedding.title}</h1>
-              <p className="mt-4 max-w-2xl text-white/90">{couple.wedding.subtitle}</p>
+              <p className="mb-2 text-xs tracking-[0.22em]">CASAMENTO</p>
+              <h1 className="text-6xl drop-shadow-xl">{couple.wedding.title}</h1>
+              <p className="mt-4 max-w-2xl text-lg text-white/90">{couple.wedding.subtitle}</p>
               <div className="mt-8 flex gap-3">
                 <Link href={`/${slug}/rsvp`}>
                   <Button>Confirmar Presenca</Button>
                 </Link>
                 <Link href={`/${slug}/presentes`}>
-                  <Button variant="outline">Lista de Presentes</Button>
+                  <Button variant="outline">Ver lista de presentes</Button>
                 </Link>
               </div>
             </div>
@@ -98,18 +79,19 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-6 px-6 pb-20 md:grid-cols-12">
-        <div className="space-y-6 md:col-span-8">
+      <section className="mx-auto grid max-w-6xl gap-6 px-6 pb-20 lg:grid-cols-12">
+        <div className="space-y-6 lg:col-span-8">
           {couple.wedding.sections.map((section: WeddingSection) => (
             <AnimatedSection key={section.id}>
-              <Card className="p-6">
+              <Card className={`p-6 ${dark ? "bg-black/50 text-white" : ""}`}>
                 <h2 className="mb-2 text-3xl">{section.title ?? section.type}</h2>
-                <p className="text-[var(--color-muted)]">{section.content}</p>
+                <p className={dark ? "text-white/80" : "text-[var(--color-muted)]"}>{section.content}</p>
               </Card>
             </AnimatedSection>
           ))}
+
           <AnimatedSection>
-            <Card className="p-6">
+            <Card className={`p-6 ${dark ? "bg-black/50 text-white" : ""}`}>
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-3xl">Lista de Presentes</h2>
                 <Link href={`/${slug}/presentes`}>
@@ -118,15 +100,17 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
               </div>
               <div className="grid gap-3 md:grid-cols-2">
                 {couple.gifts.map((gift) => (
-                  <div key={gift.id} className="rounded-xl border p-2">
+                  <div key={gift.id} className={`overflow-hidden rounded-xl border ${dark ? "border-white/20 bg-black/35" : "bg-white/85"}`}>
                     <img
                       src={getGiftImageUrl(gift.catalogItem.imageUrl, gift.catalogItem.title, gift.catalogItem.category)}
                       alt={gift.catalogItem.title}
-                      className="mb-2 h-36 w-full rounded-lg border object-cover"
+                      className="h-36 w-full object-cover"
                     />
-                    <p className="text-sm text-[var(--color-muted)]">{gift.catalogItem.category}</p>
-                    <p className="text-lg">{gift.catalogItem.title}</p>
-                    <p className="text-sm font-semibold">{formatBRLFromCents(gift.priceCents)}</p>
+                    <div className="space-y-1 p-3">
+                      <p className={`text-xs ${dark ? "text-white/70" : "text-[var(--color-muted)]"}`}>{gift.catalogItem.category}</p>
+                      <p className="text-lg">{gift.catalogItem.title}</p>
+                      <p className="text-sm font-semibold">{formatBRLFromCents(gift.priceCents)}</p>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -134,19 +118,19 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
           </AnimatedSection>
         </div>
 
-        <div className="space-y-6 md:col-span-4">
-          <Card className="p-6">
-            <h3 className="mb-2 text-2xl">Pix</h3>
-            <p className="mb-4 text-sm text-[var(--color-muted)]">
-              {couple.pixSetting?.enabled ? "Pagamento Pix disponivel para presentear." : "Pix temporariamente indisponivel."}
+        <div className="space-y-6 lg:col-span-4">
+          <Card className={`p-6 ${dark ? "bg-black/50 text-white" : ""}`}>
+            <h3 className="mb-2 text-2xl">Pagamento Pix</h3>
+            <p className={`mb-4 text-sm ${dark ? "text-white/80" : "text-[var(--color-muted)]"}`}>
+              {couple.pixSetting?.enabled ? "Checkout instantaneo com QR Code e Pix Copia e Cola." : "Pix temporariamente indisponivel."}
             </p>
             <Link href={`/${slug}/presentes`}>
-              <Button className="w-full">Presentear agora</Button>
+              <Button className="w-full">Ir para presentes</Button>
             </Link>
           </Card>
-          <Card className="p-6">
-            <h3 className="mb-2 text-2xl">Template</h3>
-            <p className="text-sm text-[var(--color-muted)]">{couple.wedding.template?.name ?? "Template customizado"}</p>
+          <Card className={`p-6 ${dark ? "bg-black/50 text-white" : ""}`}>
+            <h3 className="mb-2 text-xl">Template atual</h3>
+            <p className={dark ? "text-white/80" : "text-[var(--color-muted)]"}>{couple.wedding.template?.name ?? "Template customizado"}</p>
           </Card>
         </div>
       </section>
