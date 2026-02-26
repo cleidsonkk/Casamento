@@ -28,15 +28,25 @@ export function PixPageClient({
       pixKey={pixKey}
       status={currentStatus}
       onPaid={async () => {
-        const res = await fetch(`/api/public/${slug}/orders/${orderId}/pay`, { method: "POST" });
-        const data = await res.json();
-        if (!res.ok) {
-          toast.error(data.error ?? "Falha ao atualizar");
-          return;
+        try {
+          const res = await fetch(`/api/public/${slug}/orders/${orderId}/pay`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({}),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            toast.error((data as { error?: string }).error ?? "Falha ao atualizar status do pedido");
+            return;
+          }
+          const nextStatus = (data as { status?: string }).status ?? "AWAITING_CONFIRMATION";
+          setCurrentStatus(nextStatus);
+          toast.success("Confirmacao enviada com sucesso");
+        } catch {
+          toast.error("Erro de conexao ao confirmar pagamento");
         }
-        setCurrentStatus(data.status);
-        toast.success("Recebemos sua confirmação");
       }}
     />
   );
 }
+
