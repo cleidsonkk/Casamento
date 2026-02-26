@@ -57,73 +57,51 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
           </header>
 
           <section className="p-3 md:p-6">
-            <div className="overflow-hidden rounded-3xl border border-white/60 bg-white/60 backdrop-blur">
+            <div className="overflow-hidden rounded-3xl border border-white/60 bg-white/65 shadow-[0_30px_80px_-40px_rgba(0,0,0,.45)] backdrop-blur">
               <div className="grid lg:grid-cols-12">
-                <div className="relative min-h-[19rem] lg:col-span-7">
+                <div className="relative min-h-[21rem] lg:col-span-7">
                   <SmartImage src={theme.heroImage} alt={couple.wedding.title} className="h-full w-full object-cover" loading="eager" />
                   <div className={`absolute inset-0 ${theme.heroOverlay}`} />
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_20%,rgba(255,255,255,.28),transparent_45%)]" />
+                  <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,11,11,.35),transparent_45%,rgba(255,255,255,.06))]" />
                 </div>
-                <div className="relative flex items-center justify-center overflow-hidden p-5 md:p-10 lg:col-span-5">
-                  <div className="absolute inset-0 bg-[linear-gradient(160deg,rgba(255,255,255,.92),rgba(248,243,234,.84))]" />
-                  <div className="pointer-events-none absolute right-0 top-0 h-28 w-28 opacity-70 md:h-36 md:w-36">
-                    <SmartImage
-                      src="https://images.unsplash.com/photo-1468327768560-75b778cbb551?w=500&q=80&auto=format&fit=crop"
-                      alt="Flores decorativas"
-                      className="h-full w-full rounded-bl-[60px] object-cover mix-blend-multiply"
-                    />
-                  </div>
-                  <div className="pointer-events-none absolute bottom-0 right-0 h-32 w-32 opacity-75 md:h-44 md:w-44">
-                    <SmartImage
-                      src="https://images.unsplash.com/photo-1468327768560-75b778cbb551?w=600&q=80&auto=format&fit=crop"
-                      alt="Flores decorativas"
-                      className="h-full w-full rounded-tl-[80px] object-cover mix-blend-multiply"
-                    />
-                  </div>
-                  <div className="pointer-events-none absolute bottom-0 left-0 h-24 w-24 opacity-65 md:h-32 md:w-32">
-                    <SmartImage
-                      src="https://images.unsplash.com/photo-1455656678494-4d1b5f3e7ad7?w=500&q=80&auto=format&fit=crop"
-                      alt="Flores decorativas"
-                      className="h-full w-full rounded-tr-[64px] object-cover mix-blend-multiply"
-                    />
-                  </div>
-                  <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[#f8edd9]/60 blur-3xl" />
-                  <div className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-[#f5e4c9]/55 blur-3xl" />
-                  <div className="relative w-full rounded-3xl border border-[#e7dbc8] bg-white/72 p-4 text-center shadow-[0_30px_70px_-40px_rgba(0,0,0,.4)] backdrop-blur md:p-7">
-                    <p className="mx-auto mb-4 inline-flex rounded-full border border-[#d7ccb9] bg-white/80 px-6 py-1 text-xs tracking-[0.2em] text-[#72695c]">
+                <div className="relative flex items-center justify-center p-4 md:p-8 lg:col-span-5">
+                  <div className="absolute inset-0 bg-[linear-gradient(165deg,#fdfcf9_0%,#f7f1e6_45%,#fdfbf7_100%)]" />
+                  <div className="absolute inset-0 opacity-50 [background:radial-gradient(circle_at_18%_20%,rgba(203,169,113,.15),transparent_40%),radial-gradient(circle_at_90%_90%,rgba(188,146,85,.12),transparent_42%)]" />
+                  <div className="relative w-full rounded-[2rem] border border-[#e7decd] bg-white/88 p-5 text-center shadow-[0_26px_60px_-36px_rgba(0,0,0,.42)] md:p-8">
+                    <p className="mx-auto inline-flex rounded-full border border-[#d8cbb6] px-6 py-1 text-xs tracking-[0.22em] text-[#6f6659]">
                       WEDDING DAY
                     </p>
-                    <div className="mx-auto mb-3 h-px w-24 bg-gradient-to-r from-transparent via-[#d2b178] to-transparent" />
+                    <div className="mx-auto mt-4 h-px w-24 bg-gradient-to-r from-transparent via-[#d6ba89] to-transparent" />
                     <h1
-                      className="text-6xl font-semibold leading-[0.9] tracking-[-0.02em] md:text-7xl"
+                      className="mt-4 text-5xl font-semibold leading-[0.9] tracking-[-0.01em] md:text-7xl"
                       style={{
                         fontFamily: "var(--font-heading)",
                         fontStyle: "italic",
-                        backgroundImage: "linear-gradient(180deg,#edcf8f 0%,#c69547 48%,#8f6329 100%)",
+                        backgroundImage: "linear-gradient(178deg,#efd6a3 0%,#c89c50 52%,#8f652c 100%)",
                         WebkitBackgroundClip: "text",
                         color: "transparent",
-                        textShadow: "0 2px 12px rgba(118,82,33,.25)",
+                        textShadow: "0 6px 20px rgba(125,89,42,.2)",
                       }}
                     >
                       {nameA}
                       {nameB ? <><br />{nameB}</> : null}
                     </h1>
-                    <p className="mt-3 text-2xl font-medium tracking-[0.08em] text-[#cfb58b]">{date}</p>
-                    <div className="mt-6 grid grid-cols-4 gap-2">
+                    <p className="mt-3 text-2xl font-medium tracking-[0.08em] text-[#caaf84]">{date}</p>
+                    <div className="mt-6 grid grid-cols-4 gap-2 md:gap-3">
                       {[
                         [String(Math.max(1, couple.guests.length || 42)), "DIAS"],
                         ["14", "HORAS"],
                         ["22", "MIN"],
                         ["05", "SEG"],
                       ].map(([value, label]) => (
-                        <div key={label} className="rounded-2xl border border-[#dfd5c7] bg-white/88 p-2 shadow-[0_12px_24px_-18px_rgba(0,0,0,.35)]">
-                          <p className="text-3xl leading-tight text-[#3d3d3d]">{value}</p>
-                          <p className="text-[11px] tracking-[0.12em] text-[#787168]">{label}</p>
+                        <div key={label} className="rounded-2xl border border-[#ded4c6] bg-white p-2 shadow-[0_10px_22px_-18px_rgba(0,0,0,.3)] md:p-3">
+                          <p className="text-3xl leading-tight text-[#3f3c39]">{value}</p>
+                          <p className="text-[11px] tracking-[0.13em] text-[#777066]">{label}</p>
                         </div>
                       ))}
                     </div>
                     <Link href={`/${slug}/presentes`}>
-                      <Button className="mt-6 w-full rounded-2xl bg-[linear-gradient(115deg,#8a5d1e,#c08a36,#d7a647)] py-6 text-base font-semibold text-white shadow-[0_20px_30px_-18px_rgba(125,84,26,.75)] md:w-auto md:px-12">
+                      <Button className="mt-6 w-full rounded-2xl bg-[linear-gradient(110deg,#90601e,#b6822f,#dcac49)] py-6 text-lg font-semibold text-white shadow-[0_16px_30px_-16px_rgba(128,90,39,.72)] md:w-auto md:px-14">
                         Presentear os noivos
                       </Button>
                     </Link>
