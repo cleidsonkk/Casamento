@@ -180,18 +180,58 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
           </AnimatedSection>
 
           <AnimatedSection className="px-3 pb-3 md:px-6 md:pb-6">
-            <Card className={`grid gap-3 p-4 md:grid-cols-3 ${theme.contentCardClass}`}>
-              <div className={`rounded-xl border p-3 ${theme.statBoxClass}`}>
-                <p className={`text-3xl ${theme.titleClass}`}>{confirmed}</p>
-                <p className={`text-sm ${theme.mutedClass}`}>Confirmados</p>
-              </div>
-              <div className={`rounded-xl border p-3 ${theme.statBoxClass}`}>
-                <p className={`text-3xl ${theme.titleClass}`}>{couple.gifts.length}</p>
-                <p className={`text-sm ${theme.mutedClass}`}>Presentes ativos</p>
-              </div>
-              <div className={`rounded-xl border p-3 ${theme.statBoxClass}`}>
-                <p className={`text-xl ${theme.titleClass}`}>{couple.name.toLowerCase().replaceAll(" ", "")}.com</p>
-                <p className={`text-sm ${theme.mutedClass}`}>Link do casal</p>
+            <Card className={`overflow-hidden p-4 md:p-6 ${theme.contentCardClass}`}>
+              <div className="grid gap-4 lg:grid-cols-12">
+                <div className={`rounded-2xl border p-4 md:p-5 lg:col-span-7 ${theme.statBoxClass}`}>
+                  <p className={`text-xs tracking-[0.2em] ${theme.mutedClass}`}>MENSAGEM INICIAL</p>
+                  <h2 className={`mt-2 text-3xl md:text-4xl ${theme.titleClass}`}>Bem-vindos ao nosso casamento</h2>
+                  <p className={`mt-3 text-sm leading-7 md:text-base ${theme.mutedClass}`}>
+                    {couple.wedding.story ??
+                      "Estamos muito felizes em compartilhar este momento com voce. Sua presenca e carinho fazem toda diferenca em nosso grande dia."}
+                  </p>
+                  <div className={`mt-5 h-px w-full bg-gradient-to-r ${theme.heroDividerClass}`} />
+                  <div className="mt-4 grid grid-cols-3 gap-2">
+                    <div className="rounded-xl border bg-white/80 p-3 text-center">
+                      <p className={`text-2xl ${theme.titleClass}`}>{confirmed}</p>
+                      <p className={`text-[11px] tracking-[0.14em] ${theme.mutedClass}`}>CONFIRMADOS</p>
+                    </div>
+                    <div className="rounded-xl border bg-white/80 p-3 text-center">
+                      <p className={`text-2xl ${theme.titleClass}`}>{couple.gifts.length}</p>
+                      <p className={`text-[11px] tracking-[0.14em] ${theme.mutedClass}`}>PRESENTES</p>
+                    </div>
+                    <div className="rounded-xl border bg-white/80 p-3 text-center">
+                      <p className={`text-2xl ${theme.titleClass}`}>{couple.guests.length}</p>
+                      <p className={`text-[11px] tracking-[0.14em] ${theme.mutedClass}`}>CONVIDADOS</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={`rounded-2xl border p-4 md:p-5 lg:col-span-5 ${theme.statBoxClass}`}>
+                  <p className={`text-xs tracking-[0.2em] ${theme.mutedClass}`}>CONTAGEM REGRESSIVA</p>
+                  <p className={`mt-1 text-sm ${theme.mutedClass}`}>{date}</p>
+                  <div className="mt-4 grid grid-cols-4 gap-2">
+                    {[
+                      [String(Math.max(1, couple.guests.length || 42)), "DIAS"],
+                      ["14", "HORAS"],
+                      ["22", "MIN"],
+                      ["05", "SEG"],
+                    ].map(([value, label]) => (
+                      <div key={label} className="rounded-xl border bg-white/90 p-2 text-center">
+                        <p className={`text-2xl md:text-3xl ${theme.titleClass}`}>{value}</p>
+                        <p className={`text-[10px] tracking-[0.14em] ${theme.mutedClass}`}>{label}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className={`mt-5 h-px w-full bg-gradient-to-r ${theme.heroDividerClass}`} />
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Link href={`/${slug}/rsvp`}>
+                      <Button variant="outline" className="rounded-xl">Confirmar presenca</Button>
+                    </Link>
+                    <Link href={`/${slug}/presentes`}>
+                      <Button className={`rounded-xl ${theme.ctaClass}`}>Ver lista de presentes</Button>
+                    </Link>
+                  </div>
+                </div>
               </div>
             </Card>
           </AnimatedSection>
@@ -270,6 +310,58 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
               </Card>
             </AnimatedSection>
           </section>
+
+          <AnimatedSection className="px-3 pb-8 md:px-6 md:pb-10">
+            <Card className={`grid gap-4 p-4 md:grid-cols-3 md:p-6 ${theme.contentCardClass}`}>
+              <div className={`rounded-2xl border p-4 ${theme.statBoxClass}`}>
+                <p className={`text-xs tracking-[0.16em] ${theme.mutedClass}`}>CERIMONIA</p>
+                <h3 className={`mt-2 text-3xl ${theme.titleClass}`}>Detalhes do Grande Dia</h3>
+                <p className={`mt-2 text-sm ${theme.mutedClass}`}>
+                  {couple.wedding.subtitle ?? "Uma celebracao especial com pessoas queridas, em um dia inesquecivel."}
+                </p>
+                <p className={`mt-2 text-sm ${theme.mutedClass}`}>
+                  {couple.wedding.location ? `Local: ${couple.wedding.location}` : "Local sera confirmado em breve."}
+                </p>
+              </div>
+
+              <div className={`rounded-2xl border p-4 ${theme.statBoxClass}`}>
+                <p className={`text-xs tracking-[0.16em] ${theme.mutedClass}`}>JORNADA DO CASAL</p>
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  <div className="rounded-xl border bg-white/80 p-3 text-center">
+                    <p className={`text-2xl ${theme.titleClass}`}>{confirmed}</p>
+                    <p className={`text-[11px] tracking-[0.14em] ${theme.mutedClass}`}>CONFIRMADOS</p>
+                  </div>
+                  <div className="rounded-xl border bg-white/80 p-3 text-center">
+                    <p className={`text-2xl ${theme.titleClass}`}>{couple.gifts.length}</p>
+                    <p className={`text-[11px] tracking-[0.14em] ${theme.mutedClass}`}>PRESENTES</p>
+                  </div>
+                  <div className="rounded-xl border bg-white/80 p-3 text-center">
+                    <p className={`text-2xl ${theme.titleClass}`}>{couple.guests.length}</p>
+                    <p className={`text-[11px] tracking-[0.14em] ${theme.mutedClass}`}>CONVIDADOS</p>
+                  </div>
+                </div>
+                <p className={`mt-3 text-sm ${theme.mutedClass}`}>
+                  Atualizacoes em tempo real no site dos noivos.
+                </p>
+              </div>
+
+              <div className={`rounded-2xl border p-4 ${theme.statBoxClass}`}>
+                <p className={`text-xs tracking-[0.16em] ${theme.mutedClass}`}>PARTICIPE</p>
+                <h3 className={`mt-2 text-3xl ${theme.titleClass}`}>Faça parte desse momento</h3>
+                <p className={`mt-2 text-sm ${theme.mutedClass}`}>
+                  Confirme sua presenca e escolha um presente com pagamento Pix em poucos passos.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Link href={`/${slug}/rsvp`}>
+                    <Button className="rounded-xl">Confirmar presenca</Button>
+                  </Link>
+                  <Link href={`/${slug}/presentes`}>
+                    <Button variant="outline" className="rounded-xl">Ver presentes</Button>
+                  </Link>
+                </div>
+              </div>
+            </Card>
+          </AnimatedSection>
         </div>
       </div>
     </main>
