@@ -29,12 +29,7 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
   const [category, setCategory] = useState("all");
   const [sort, setSort] = useState<"asc" | "desc">("asc");
   const [selected, setSelected] = useState<Gift | null>(null);
-  const [mounted, setMounted] = useState(false);
   const nameInputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (!selected) return;
@@ -185,7 +180,7 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
         </Card>
       ) : null}
 
-      {mounted
+      {typeof document !== "undefined"
         ? createPortal(
             <AnimatePresence>
               {selected && (

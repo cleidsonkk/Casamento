@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -113,9 +114,9 @@ export default function RegisterPage() {
 
               <p className="mt-4 text-center text-sm text-[var(--color-muted)]">
                 Ja tem conta?{" "}
-                <a href="/login" className="font-medium text-black underline underline-offset-4">
+                <Link href="/login" className="font-medium text-black underline underline-offset-4">
                   Entrar
-                </a>
+                </Link>
               </p>
             </Card>
           </section>

@@ -5,10 +5,10 @@ export function Card(props: React.HTMLAttributes<HTMLDivElement>) {
     <div
       {...props}
       className={cn(
-        "rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-card)] shadow-[0_12px_30px_-20px_rgba(0,0,0,.35)]",
+        "rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-card)]",
+        "shadow-[0_18px_40px_-28px_rgba(0,0,0,.38)]",
         props.className,
       )}
     />
   );
 }
-

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -66,9 +67,9 @@ export default function LoginPage() {
               </form>
               <p className="mt-4 text-center text-sm text-[var(--color-muted)]">
                 Primeiro acesso?{" "}
-                <a href="/register" className="font-medium text-black underline underline-offset-4">
+                <Link href="/register" className="font-medium text-black underline underline-offset-4">
                   Criar conta de noivos
-                </a>
+                </Link>
               </p>
             </Card>
           </section>

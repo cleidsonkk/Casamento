@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { CSSProperties } from "react";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -72,6 +73,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
       : nameLines.length >= 3
         ? "text-[clamp(2.2rem,4.5vw,4.5rem)]"
         : "text-[clamp(2.6rem,5.2vw,5.8rem)]";
+  const rootStyle: CSSProperties = { "--font-heading": theme.headingFont } as CSSProperties;
 
   const heroPanel = (
     <div className={`relative w-full overflow-visible rounded-[2rem] border p-5 text-center shadow-[0_26px_60px_-36px_rgba(0,0,0,.42)] md:p-8 ${theme.heroCardClass}`}>
@@ -119,7 +121,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
   );
 
   return (
-    <main className={`min-h-screen ${theme.shellClass}`} style={{ ["--font-heading" as any]: theme.headingFont }}>
+    <main className={`min-h-screen ${theme.shellClass}`} style={rootStyle}>
       <div className="mx-auto max-w-7xl px-4 py-4 md:px-6 md:py-6">
         <div className={`overflow-hidden rounded-[2rem] border shadow-[0_40px_80px_-50px_rgba(0,0,0,0.45)] ${theme.frameClass}`}>
           <header className={`border-b px-4 py-4 md:px-8 ${theme.navClass}`}>

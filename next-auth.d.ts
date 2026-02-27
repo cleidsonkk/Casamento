@@ -1,5 +1,4 @@
 import { DefaultSession } from "next-auth";
-import { JWT } from "next-auth/jwt";
 import { Role } from "@prisma/client";
 
 declare module "next-auth" {
@@ -18,4 +17,3 @@ declare module "next-auth/jwt" {
     coupleId?: string;
   }
 }
-

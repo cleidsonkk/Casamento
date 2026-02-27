@@ -19,6 +19,25 @@ type GiftItem = {
   giftMode: "UNIQUE" | "REPEATABLE";
 };
 
+type DashboardGift = {
+  catalogItemId: string;
+  active: boolean;
+  priceCents: number;
+  giftMode: "UNIQUE" | "REPEATABLE";
+};
+
+type CatalogItem = {
+  id: string;
+  title: string;
+  category: string;
+  imageUrl?: string | null;
+};
+
+type GiftsResponse = {
+  gifts?: DashboardGift[];
+  catalog?: CatalogItem[];
+};
+
 const PAGE_SIZE = 24;
 
 export default function GiftsDashboardPage() {
@@ -28,20 +47,21 @@ export default function GiftsDashboardPage() {
 
   useEffect(() => {
     fetch("/api/dashboard/gifts")
-      .then((r) => r.json())
+      .then((r) => r.json() as Promise<GiftsResponse>)
       .then((data) => {
-        const map = new Map<string, any>((data.gifts ?? []).map((g: any) => [g.catalogItemId, g]));
-        const merged = (data.catalog ?? []).map((item: any) => {
-          const cents = map.get(item.id)?.priceCents ?? 10000;
+        const map = new Map<string, DashboardGift>((data.gifts ?? []).map((g) => [g.catalogItemId, g]));
+        const merged = (data.catalog ?? []).map((item) => {
+          const mappedGift = map.get(item.id);
+          const cents = mappedGift?.priceCents ?? 10000;
           return {
             catalogItemId: item.id,
             title: item.title,
             category: item.category,
             imageUrl: item.imageUrl ?? null,
-            active: map.get(item.id)?.active ?? false,
+            active: mappedGift?.active ?? false,
             priceCents: cents,
             priceInput: formatCentsToInput(cents),
-            giftMode: map.get(item.id)?.giftMode ?? "UNIQUE",
+            giftMode: mappedGift?.giftMode ?? "UNIQUE",
           };
         });
         setRows(merged);

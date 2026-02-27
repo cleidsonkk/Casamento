@@ -67,7 +67,7 @@ export function PixViewer({
           <ol className="mt-4 space-y-3 text-sm text-[var(--color-muted)]">
             <li className="rounded-xl border bg-white/85 p-3">1. Abra seu banco e escolha Pix QR Code ou Copia e Cola.</li>
             <li className="rounded-xl border bg-white/85 p-3">2. Faca o pagamento no valor exato do presente.</li>
-            <li className="rounded-xl border bg-white/85 p-3">3. Clique em "Ja paguei" para notificar os noivos.</li>
+            <li className="rounded-xl border bg-white/85 p-3">3. Clique em &quot;Ja paguei&quot; para notificar os noivos.</li>
           </ol>
         </div>
       </div>
