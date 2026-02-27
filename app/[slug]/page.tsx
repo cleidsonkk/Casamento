@@ -18,7 +18,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
   const couple = await db.couple.findUnique({
     where: { slug },
     include: {
-      wedding: { include: { template: true, sections: true } },
+      wedding: { include: { template: true, sections: true, gallery: { orderBy: { order: "asc" } } } },
       gifts: { where: { active: true }, include: { catalogItem: true }, take: 6, orderBy: { updatedAt: "desc" } },
       pixSetting: true,
       guests: true,
@@ -30,6 +30,13 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
   const theme = getTemplateTheme(couple.wedding.template?.key);
   const date = formatEventDate(couple.wedding.eventDate);
   const confirmed = couple.rsvps.filter((r) => r.status === "YES").length;
+  const heroImageUrl =
+    couple.wedding.sections.find((section) => section.type === "HERO_IMAGE")?.content ||
+    couple.wedding.gallery[0]?.imageUrl ||
+    theme.heroImage;
+  const galleryUrls =
+    couple.wedding.gallery.map((item) => item.imageUrl).filter(Boolean) ||
+    [];
   const titleText = couple.wedding.title.replace("+", "&");
   const [nameA, nameB] = titleText.includes("&")
     ? titleText.split("&").map((p) => p.trim())
@@ -60,7 +67,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
             <div className="overflow-hidden rounded-3xl border border-white/60 bg-white/65 shadow-[0_30px_80px_-40px_rgba(0,0,0,.45)] backdrop-blur">
               <div className="grid lg:grid-cols-12">
                 <div className="relative min-h-[21rem] lg:col-span-7">
-                  <SmartImage src={theme.heroImage} alt={couple.wedding.title} className="h-full w-full object-cover" loading="eager" />
+                  <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="h-full w-full object-cover" loading="eager" />
                   <div className={`absolute inset-0 ${theme.heroOverlay}`} />
                   <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,11,11,.35),transparent_45%,rgba(255,255,255,.06))]" />
                 </div>
@@ -132,7 +139,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
             <div className="space-y-4 lg:col-span-8">
               <Card id="historia" className="grid gap-4 border-white/70 bg-white/80 p-4 md:grid-cols-12 md:p-6">
                 <SmartImage
-                  src="https://images.unsplash.com/photo-1529636798458-92182e662485?w=1200&q=80&auto=format&fit=crop"
+                  src={galleryUrls[0] || "https://images.unsplash.com/photo-1529636798458-92182e662485?w=1200&q=80&auto=format&fit=crop"}
                   alt="Historia do casal"
                   className="h-56 w-full rounded-2xl object-cover md:col-span-5"
                 />
@@ -152,11 +159,11 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                   <h3 className={`text-3xl ${theme.titleClass}`}>Album de Fotos</h3>
                   <p className="mt-2 text-sm text-[var(--color-muted)]">Momentos que marcaram nossa historia.</p>
                   <div className="mt-4 grid grid-cols-3 gap-2">
-                    {[
+                    {(galleryUrls.length ? galleryUrls : [
                       "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1200&q=80&auto=format&fit=crop",
                       "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=1200&q=80&auto=format&fit=crop",
                       "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=1200&q=80&auto=format&fit=crop",
-                    ].map((url) => (
+                    ]).slice(0, 6).map((url) => (
                       <SmartImage key={url} src={url} alt="Foto do casal" className="h-24 w-full rounded-lg object-cover md:h-28" />
                     ))}
                   </div>
