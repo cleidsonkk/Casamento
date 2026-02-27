@@ -2,6 +2,16 @@ const GUI = "br.gov.bcb.pix";
 
 const id = (value: string, code: string) => `${code}${value.length.toString().padStart(2, "0")}${value}`;
 
+function onlyAsciiUpper(value: string) {
+  return (value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^A-Za-z0-9 $%*+\-./:]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase();
+}
+
 function normalizePixKey(rawKey: string) {
   const key = (rawKey || "").trim();
   if (!key) return key;
@@ -36,18 +46,24 @@ export function buildPixPayload(input: {
 }) {
   const amount = (input.amountCents / 100).toFixed(2);
   const key = normalizePixKey(input.key);
-  const merchant = id(id(GUI, "00") + id(key, "01") + (input.description ? id(input.description, "02") : ""), "26");
+  const receiverName = onlyAsciiUpper(input.receiverName).slice(0, 25) || "RECEBEDOR";
+  const city = onlyAsciiUpper(input.city).slice(0, 15) || "SAO PAULO";
+  const description = input.description ? onlyAsciiUpper(input.description).slice(0, 72) : "";
+  const txid = onlyAsciiUpper(input.txid).replace(/[^A-Z0-9]/g, "").slice(0, 25) || "***";
+
+  const merchant =
+    id(id(GUI, "00") + id(key, "01") + (description ? id(description, "02") : ""), "26");
   const payloadNoCrc = [
     id("01", "00"),
-    id("12", "01"),
+    id("11", "01"),
     merchant,
     id("0000", "52"),
     id("986", "53"),
     id(amount, "54"),
     id("BR", "58"),
-    id(input.receiverName.slice(0, 25).toUpperCase(), "59"),
-    id(input.city.slice(0, 15).toUpperCase(), "60"),
-    id(id(input.txid.slice(0, 25), "05"), "62"),
+    id(receiverName, "59"),
+    id(city, "60"),
+    id(id(txid, "05"), "62"),
     "6304",
   ].join("");
   return `${payloadNoCrc}${crc16(payloadNoCrc)}`;
