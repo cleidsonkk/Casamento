@@ -14,17 +14,30 @@ function formatEventDate(date: Date | null | undefined) {
   return new Intl.DateTimeFormat("pt-BR").format(date).replaceAll("/", ".");
 }
 
-function splitCoupleNames(rawTitle: string) {
+function buildNameLines(rawTitle: string) {
   const clean = rawTitle.replace(/\s+/g, " ").trim();
+  if (!clean) return ["Noivos"];
+
   const byMainDelimiters = clean.split(/\s*(?:\+|&|\be\b)\s*/i).filter(Boolean);
   if (byMainDelimiters.length >= 2) {
-    return [byMainDelimiters[0], byMainDelimiters.slice(1).join(" ")];
+    return byMainDelimiters.map((item) => item.trim()).filter(Boolean);
   }
 
   const words = clean.split(" ");
-  if (words.length <= 1) return [clean, ""];
-  const mid = Math.ceil(words.length / 2);
-  return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
+  const lines: string[] = [];
+  let current = "";
+  const maxChars = 14;
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word;
+    if (next.length > maxChars && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = next;
+    }
+  }
+  if (current) lines.push(current);
+  return lines.slice(0, 4);
 }
 
 export default async function WeddingPublicPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -51,19 +64,23 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
   const galleryUrls =
     couple.wedding.gallery.map((item) => item.imageUrl).filter(Boolean) ||
     [];
-  const [nameA, nameB] = splitCoupleNames(couple.wedding.title);
-  const longNames = nameA.length > 18 || nameB.length > 18;
+  const nameLines = buildNameLines(couple.wedding.title);
+  const longestLine = Math.max(...nameLines.map((line) => line.length), 0);
+  const nameSizeClass =
+    longestLine > 18
+      ? "text-[clamp(2rem,4.2vw,4rem)]"
+      : nameLines.length >= 3
+        ? "text-[clamp(2.2rem,4.5vw,4.5rem)]"
+        : "text-[clamp(2.6rem,5.2vw,5.8rem)]";
 
   const heroPanel = (
-    <div className={`relative w-full rounded-[2rem] border p-5 text-center shadow-[0_26px_60px_-36px_rgba(0,0,0,.42)] md:p-8 ${theme.heroCardClass}`}>
+    <div className={`relative w-full overflow-visible rounded-[2rem] border p-5 text-center shadow-[0_26px_60px_-36px_rgba(0,0,0,.42)] md:p-8 ${theme.heroCardClass}`}>
       <p className={`mx-auto inline-flex rounded-full border px-6 py-1 text-xs tracking-[0.22em] ${theme.heroBadgeClass}`}>
         WEDDING DAY
       </p>
       <div className={`mx-auto mt-4 h-px w-24 bg-gradient-to-r ${theme.heroDividerClass}`} />
       <h1
-        className={`mt-4 font-semibold leading-[0.92] tracking-[-0.01em] ${
-          longNames ? "text-[clamp(2.3rem,4.6vw,4.6rem)]" : "text-[clamp(2.6rem,5.2vw,5.8rem)]"
-        }`}
+        className={`mt-4 px-1 font-semibold leading-[0.95] tracking-[-0.01em] ${nameSizeClass}`}
         style={{
           fontFamily: "var(--font-heading)",
           fontStyle: "italic",
@@ -73,13 +90,11 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
           textShadow: theme.heroNameShadow,
         }}
       >
-        <span className="block">{nameA}</span>
-        {nameB ? (
-          <>
-            <span className={`mx-auto mt-1 block h-px w-14 bg-gradient-to-r ${theme.heroDividerClass}`} />
-            <span className="mt-2 block">{nameB}</span>
-          </>
-        ) : null}
+        {nameLines.map((line) => (
+          <span key={line} className="block break-words">
+            {line}
+          </span>
+        ))}
       </h1>
       <p className={`mt-3 text-2xl font-medium tracking-[0.08em] ${theme.heroDateClass}`}>{date}</p>
       <div className="mt-6 grid grid-cols-4 gap-2 md:gap-3">
@@ -96,7 +111,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
         ))}
       </div>
       <Link href={`/${slug}/presentes`}>
-        <Button className={`mt-6 w-full rounded-2xl py-6 text-lg font-semibold md:w-auto md:px-14 ${theme.ctaClass}`}>
+        <Button className={`mt-6 w-full rounded-2xl py-6 text-lg font-semibold md:w-auto md:px-14 md:whitespace-nowrap ${theme.ctaClass}`}>
           Presentear os noivos
         </Button>
       </Link>
@@ -137,11 +152,11 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
             ) : theme.heroLayout === "editorial" ? (
               <div className={`overflow-hidden rounded-3xl border shadow-[0_30px_80px_-40px_rgba(0,0,0,.45)] ${theme.heroCardClass}`}>
                 <div className="grid lg:grid-cols-12">
-                  <div className="relative min-h-[20rem] lg:col-span-8">
+                  <div className="relative min-h-[20rem] lg:col-span-7">
                     <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="h-full w-full object-cover" loading="eager" />
                     <div className={`absolute inset-0 ${theme.heroOverlay}`} />
                   </div>
-                  <div className={`flex items-center p-4 md:p-8 lg:col-span-4 ${theme.heroRightBgClass}`}>
+                  <div className={`flex items-center p-4 md:p-8 lg:col-span-5 ${theme.heroRightBgClass}`}>
                     {heroPanel}
                   </div>
                 </div>
