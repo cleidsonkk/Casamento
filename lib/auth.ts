@@ -40,10 +40,14 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.role = (user as { role?: Role }).role;
         token.coupleId = (user as { coupleId?: string }).coupleId;
+      }
+      const nextCoupleId = (session as { coupleId?: string } | undefined)?.coupleId;
+      if (trigger === "update" && nextCoupleId) {
+        token.coupleId = nextCoupleId;
       }
       return token;
     },

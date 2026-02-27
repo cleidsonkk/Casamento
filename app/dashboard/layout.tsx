@@ -18,13 +18,21 @@ const links: Array<[string, string]> = [
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession();
   const { coupleId } = await requireCoupleContext();
-  const wedding = await db.wedding.findUnique({
-    where: { coupleId },
-    include: { template: true },
-  });
+  const [wedding, memberships] = await Promise.all([
+    db.wedding.findUnique({
+      where: { coupleId },
+      include: { template: true },
+    }),
+    db.coupleMember.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" },
+      include: { couple: { select: { id: true, name: true, slug: true } } },
+    }),
+  ]);
 
   const theme = getTemplateTheme(wedding?.template?.key);
   const dark = wedding?.template?.key === "black-gold";
+  const couples = memberships.map((item) => item.couple);
 
   return (
     <main className={`min-h-screen ${theme.shellClass}`}>
@@ -33,6 +41,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         dark={dark}
         userName={session.user.name || undefined}
         links={links.map(([label, href]) => ({ label, href }))}
+        couples={couples}
+        currentCoupleId={coupleId}
       />
       <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">{children}</div>
     </main>
