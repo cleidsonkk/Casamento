@@ -7,14 +7,16 @@ import { PixViewer } from "@/components/public/pix-viewer";
 export function PixPageClient({
   slug,
   orderId,
-  qrDataUrl,
+  qrPayloadDataUrl,
+  qrKeyDataUrl,
   payload,
   pixKey,
   status,
 }: {
   slug: string;
   orderId: string;
-  qrDataUrl: string;
+  qrPayloadDataUrl: string;
+  qrKeyDataUrl: string;
   payload: string;
   pixKey: string;
   status: string;
@@ -23,7 +25,8 @@ export function PixPageClient({
 
   return (
     <PixViewer
-      qrDataUrl={qrDataUrl}
+      qrPayloadDataUrl={qrPayloadDataUrl}
+      qrKeyDataUrl={qrKeyDataUrl}
       payload={payload}
       pixKey={pixKey}
       status={currentStatus}
@@ -49,4 +52,3 @@ export function PixPageClient({
     />
   );
 }
-

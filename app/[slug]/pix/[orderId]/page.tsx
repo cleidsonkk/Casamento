@@ -34,7 +34,8 @@ export default async function PixPage({ params }: { params: Promise<{ slug: stri
     amountCents: order.amountCents,
     description: "Presente Casamento",
   });
-  const qrDataUrl = await QRCode.toDataURL(payload, { margin: 1, width: 512 });
+  const qrPayloadDataUrl = await QRCode.toDataURL(payload, { margin: 1, width: 512 });
+  const qrKeyDataUrl = await QRCode.toDataURL(pixSetting.pixKey, { margin: 1, width: 512 });
 
   return (
     <main className="mx-auto min-h-screen max-w-xl px-6 py-12">
@@ -46,7 +47,8 @@ export default async function PixPage({ params }: { params: Promise<{ slug: stri
       <PixPageClient
         slug={slug}
         orderId={order.id}
-        qrDataUrl={qrDataUrl}
+        qrPayloadDataUrl={qrPayloadDataUrl}
+        qrKeyDataUrl={qrKeyDataUrl}
         payload={payload}
         pixKey={pixSetting.pixKey}
         status={order.status}
@@ -54,4 +56,3 @@ export default async function PixPage({ params }: { params: Promise<{ slug: stri
     </main>
   );
 }
-
