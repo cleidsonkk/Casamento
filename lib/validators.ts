@@ -3,10 +3,10 @@ import { z } from "zod";
 export const rsvpSchema = z.object({
   name: z.string().min(3).max(120),
   status: z.enum(["YES", "NO"]),
-  companions: z.number().int().min(0).max(10).default(0),
+  companions: z.coerce.number().int().min(0).max(10).default(0),
   message: z.string().max(300).optional(),
-  passcode: z.string().max(20).optional(),
-  hp: z.string().max(1).optional(),
+  passcode: z.string().max(64).optional(),
+  hp: z.string().max(200).optional(),
 });
 
 export const orderSchema = z.object({

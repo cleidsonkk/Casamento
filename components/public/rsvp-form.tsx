@@ -20,17 +20,17 @@ export function RsvpForm({ slug }: { slug: string }) {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const status = (fd.get("status") as "YES" | "NO") || "YES";
-    const companions = Number(fd.get("companions") || 0);
-    const name = String(fd.get("name") || "");
+    const status = (String(fd.get("status") || "YES") as "YES" | "NO");
+    const companions = Number(String(fd.get("companions") || "0"));
+    const name = String(fd.get("name") || "").trim();
 
     const payload = {
       name,
       status,
       companions,
-      message: fd.get("message"),
-      passcode: fd.get("passcode"),
-      hp: fd.get("website"),
+      message: String(fd.get("message") || "").trim(),
+      passcode: String(fd.get("passcode") || "").trim(),
+      hp: String(fd.get("website") || "").trim(),
     };
 
     setLoading(true);
