@@ -14,6 +14,7 @@ type GiftKey =
   | "air-fryer"
   | "blender"
   | "microwave"
+  | "stove"
   | "bed-linen"
   | "bath-towels"
   | "pillows"
@@ -30,6 +31,8 @@ type GiftKey =
   | "boat-trip"
   | "spa"
   | "car-rental"
+  | "beer-help"
+  | "gas-cylinder-help"
   | "gift";
 
 function keyFromGift(title: string, category: string): GiftKey {
@@ -43,6 +46,7 @@ function keyFromGift(title: string, category: string): GiftKey {
   if (t.includes("air fryer")) return "air-fryer";
   if (t.includes("liquidificador")) return "blender";
   if (t.includes("micro-ondas")) return "microwave";
+  if (t.includes("fogao") || t.includes("cooktop") || t.includes("forno")) return "stove";
   if (t.includes("roupa de cama") || t.includes("edredom")) return "bed-linen";
   if (t.includes("toalha") || t.includes("banho")) return "bath-towels";
   if (t.includes("almofada")) return "pillows";
@@ -59,6 +63,8 @@ function keyFromGift(title: string, category: string): GiftKey {
   if (t.includes("barco")) return "boat-trip";
   if (t.includes("spa")) return "spa";
   if (t.includes("carro") || c.includes("transporte")) return "car-rental";
+  if (t.includes("cerveja") || t.includes("beer")) return "beer-help";
+  if (t.includes("botijao") || t.includes("gas")) return "gas-cylinder-help";
   return "gift";
 }
 
@@ -71,6 +77,7 @@ const PHOTO_BY_KEY: Record<GiftKey, string> = {
   "air-fryer": "https://images.pexels.com/photos/6996105/pexels-photo-6996105.jpeg?auto=compress&cs=tinysrgb&w=1200",
   blender: "https://images.pexels.com/photos/1362534/pexels-photo-1362534.jpeg?auto=compress&cs=tinysrgb&w=1200",
   microwave: "https://images.pexels.com/photos/5824519/pexels-photo-5824519.jpeg?auto=compress&cs=tinysrgb&w=1200",
+  stove: "https://images.pexels.com/photos/4108716/pexels-photo-4108716.jpeg?auto=compress&cs=tinysrgb&w=1200",
   "bed-linen": "https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg?auto=compress&cs=tinysrgb&w=1200",
   "bath-towels": "https://images.pexels.com/photos/271618/pexels-photo-271618.jpeg?auto=compress&cs=tinysrgb&w=1200",
   pillows: "https://images.pexels.com/photos/2119714/pexels-photo-2119714.jpeg?auto=compress&cs=tinysrgb&w=1200",
@@ -87,6 +94,8 @@ const PHOTO_BY_KEY: Record<GiftKey, string> = {
   "boat-trip": "https://images.pexels.com/photos/1001682/pexels-photo-1001682.jpeg?auto=compress&cs=tinysrgb&w=1200",
   spa: "https://images.pexels.com/photos/3188/love-romantic-bath-candlelight.jpg?auto=compress&cs=tinysrgb&w=1200",
   "car-rental": "https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?auto=compress&cs=tinysrgb&w=1200",
+  "beer-help": "https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg?auto=compress&cs=tinysrgb&w=1200",
+  "gas-cylinder-help": "https://loremflickr.com/1200/900/gas,cylinder?lock=148",
   gift: "https://images.pexels.com/photos/1666065/pexels-photo-1666065.jpeg?auto=compress&cs=tinysrgb&w=1200",
 };
 

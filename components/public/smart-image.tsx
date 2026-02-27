@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
 
 function fallbackFrom(src: string) {
   const seed = encodeURIComponent(src || "gift");
@@ -29,12 +30,12 @@ export function SmartImage({
     <img
       src={current}
       alt={alt}
-      className={className}
+      className={cn("max-w-full", className)}
       loading={loading}
+      decoding="async"
       onError={() => {
         setIndex((prev) => (prev < fallbacks.length ? prev + 1 : prev));
       }}
     />
   );
 }
-

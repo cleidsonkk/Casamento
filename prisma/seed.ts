@@ -54,6 +54,7 @@ function queryFromGift(title: string, category: string) {
   if (t.includes("air fryer")) return "air fryer kitchen appliance";
   if (t.includes("liquidificador")) return "blender appliance";
   if (t.includes("micro-ondas")) return "microwave appliance";
+  if (t.includes("fogao") || t.includes("cooktop") || t.includes("forno")) return "kitchen stove";
   if (t.includes("roupa de cama") || t.includes("edredom")) return "bed linen set";
   if (t.includes("toalha") || t.includes("banho")) return "bath towels set";
   if (t.includes("almofada")) return "decorative pillows";
@@ -70,6 +71,7 @@ function queryFromGift(title: string, category: string) {
   if (t.includes("barco")) return "boat trip";
   if (t.includes("spa")) return "spa";
   if (t.includes("carro") || c.includes("transporte")) return "car rental";
+  if (t.includes("cerveja") || t.includes("beer")) return "beer toast";
   if (c.includes("cozinha")) return "kitchen utensils";
   if (c.includes("quarto")) return "bedroom decor";
   if (c.includes("decoracao")) return "home decor";
@@ -108,6 +110,10 @@ async function main() {
     ["destination-beach", "Destination Beach"],
     ["classic-elegance", "Classic Elegance"],
     ["modern-neutral", "Modern Neutral"],
+    ["garden-luxe", "Garden Luxe"],
+    ["sunset-terracotta", "Sunset Terracotta"],
+    ["pearl-rose", "Pearl Rose"],
+    ["opal-night", "Opal Night"],
   ];
 
   for (const [key, name] of templateSeed) {
@@ -124,14 +130,14 @@ async function main() {
           card: "#ffffff",
           text: "#111111",
           muted: "#6f6f6f",
-          primary: key === "black-gold" ? "#b68b2f" : "#111111",
+          primary: key === "black-gold" ? "#b68b2f" : key === "opal-night" ? "#6b8db8" : "#111111",
           border: "#e8e8e8",
           radiusCard: "1.25rem",
           radiusButton: "999px",
           radiusInput: "0.85rem",
-          fontHeading: key === "destination-beach" ? "var(--font-cormorant)" : "var(--font-playfair)",
+          fontHeading: ["destination-beach", "garden-luxe", "pearl-rose"].includes(key) ? "var(--font-cormorant)" : "var(--font-playfair)",
           fontBody: "var(--font-inter)",
-          heroOverlay: key === "black-gold" ? 0.45 : 0.2,
+          heroOverlay: key === "black-gold" || key === "opal-night" ? 0.5 : 0.22,
         },
         layoutJson: {
           heroStyle: key,
@@ -206,6 +212,37 @@ async function main() {
   }
 
   await prisma.giftCatalogItem.createMany({ data: catalog, skipDuplicates: true });
+
+  const beerTitle = "Ajuda na cerveja";
+  const existingBeer = await prisma.giftCatalogItem.findFirst({ where: { title: beerTitle } });
+  const beerData = {
+    title: beerTitle,
+    category: "Experiencias",
+    description: "Ajude os noivos com o bar e cervejas da festa.",
+    imageStyle: "3d_clean_2026",
+    imagePrompt: promptFor("cervejas para festa"),
+    imageUrl: "https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    tags: ["cerveja", "festa", "experiencia", "casamento"],
+  };
+  const beerHelpCatalog = existingBeer
+    ? await prisma.giftCatalogItem.update({ where: { id: existingBeer.id }, data: beerData })
+    : await prisma.giftCatalogItem.create({ data: beerData });
+
+  const gasTitle = "Ajuda no botijao de gas";
+  const existingGas = await prisma.giftCatalogItem.findFirst({ where: { title: gasTitle } });
+  const gasData = {
+    title: gasTitle,
+    category: "Casa & Cozinha",
+    description: "Contribua com a compra de botijao de gas para o novo lar.",
+    imageStyle: "3d_clean_2026",
+    imagePrompt: promptFor("botijao de gas"),
+    imageUrl: "https://loremflickr.com/1200/900/gas,cylinder?lock=148",
+    tags: ["botijao", "gas", "casa", "casamento"],
+  };
+  const gasHelpCatalog = existingGas
+    ? await prisma.giftCatalogItem.update({ where: { id: existingGas.id }, data: gasData })
+    : await prisma.giftCatalogItem.create({ data: gasData });
+
   const firstItems = await prisma.giftCatalogItem.findMany({ take: 12, orderBy: { createdAt: "asc" } });
   for (const [idx, item] of firstItems.entries()) {
     await prisma.weddingGift.upsert({
@@ -221,13 +258,45 @@ async function main() {
     });
   }
 
+  await prisma.weddingGift.upsert({
+    where: { coupleId_catalogItemId: { coupleId: couple.id, catalogItemId: beerHelpCatalog.id } },
+    update: {
+      active: true,
+      priceCents: 2500,
+      giftMode: "REPEATABLE",
+    },
+    create: {
+      coupleId: couple.id,
+      catalogItemId: beerHelpCatalog.id,
+      active: true,
+      priceCents: 2500,
+      giftMode: "REPEATABLE",
+    },
+  });
+
+  await prisma.weddingGift.upsert({
+    where: { coupleId_catalogItemId: { coupleId: couple.id, catalogItemId: gasHelpCatalog.id } },
+    update: {
+      active: true,
+      priceCents: 18000,
+      giftMode: "REPEATABLE",
+    },
+    create: {
+      coupleId: couple.id,
+      catalogItemId: gasHelpCatalog.id,
+      active: true,
+      priceCents: 18000,
+      giftMode: "REPEATABLE",
+    },
+  });
+
   await prisma.auditLog.create({
     data: {
       action: "SEED_COMPLETED",
       entity: "SYSTEM",
       userId: admin.id,
       coupleId: couple.id,
-      metadata: { templates: 6, catalogItems: 120 },
+      metadata: { templates: 10, catalogItems: 122 },
     },
   });
 }
