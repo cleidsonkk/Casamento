@@ -3,6 +3,8 @@ import { requireSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getTemplateTheme } from "@/lib/template-theme";
 import { DashboardHeaderClient } from "@/components/dashboard/header-client";
+import { Role } from "@prisma/client";
+import { redirect } from "next/navigation";
 
 const links: Array<[string, string]> = [
   ["Visao Geral", "/dashboard"],
@@ -17,6 +19,7 @@ const links: Array<[string, string]> = [
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession();
+  if (session.user.role === Role.ADMIN) redirect("/admin");
   const { coupleId } = await requireCoupleContext();
   const [wedding, memberships] = await Promise.all([
     db.wedding.findUnique({
