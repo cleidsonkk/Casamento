@@ -1,28 +1,22 @@
 ﻿"use client";
 
-import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export function PixViewer({
   qrPayloadDataUrl,
-  qrKeyDataUrl,
   payload,
   pixKey,
   status,
   onPaid,
 }: {
   qrPayloadDataUrl: string;
-  qrKeyDataUrl: string;
   payload: string;
   pixKey: string;
   status: string;
   onPaid: () => Promise<void>;
 }) {
-  const [mode, setMode] = useState<"key" | "payload">("key");
-  const currentQr = mode === "key" ? qrKeyDataUrl : qrPayloadDataUrl;
-
   const copy = async (text: string, label: string) => {
     await navigator.clipboard.writeText(text);
     toast.success(`${label} copiado`);
@@ -36,26 +30,11 @@ export function PixViewer({
           <Badge>{status}</Badge>
         </div>
 
-        <div className="mb-3 flex flex-wrap gap-2">
-          <Button type="button" variant={mode === "key" ? "default" : "outline"} onClick={() => setMode("key")}>
-            QR da chave Pix
-          </Button>
-          <Button
-            type="button"
-            variant={mode === "payload" ? "default" : "outline"}
-            onClick={() => setMode("payload")}
-          >
-            QR Copia e Cola
-          </Button>
-        </div>
-
         <p className="mb-3 text-sm text-[var(--color-muted)]">
-          {mode === "key"
-            ? "QR gerado com a chave Pix cadastrada pelos noivos."
-            : "QR gerado com o payload Pix Copia e Cola (valor e identificador do pedido)."}
+          QR Pix oficial gerado com a chave cadastrada pelos noivos.
         </p>
 
-        <img src={currentQr} alt="QR Code Pix" className="mx-auto h-72 w-72 rounded-2xl border bg-white p-3" />
+        <img src={qrPayloadDataUrl} alt="QR Code Pix" className="mx-auto h-72 w-72 rounded-2xl border bg-white p-3" />
 
         <div className="mt-4 grid gap-2">
           <Button variant="outline" onClick={() => copy(payload, "Pix Copia e Cola")}>

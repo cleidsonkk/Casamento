@@ -8,7 +8,6 @@ export function PixPageClient({
   slug,
   orderId,
   qrPayloadDataUrl,
-  qrKeyDataUrl,
   payload,
   pixKey,
   status,
@@ -16,7 +15,6 @@ export function PixPageClient({
   slug: string;
   orderId: string;
   qrPayloadDataUrl: string;
-  qrKeyDataUrl: string;
   payload: string;
   pixKey: string;
   status: string;
@@ -26,7 +24,6 @@ export function PixPageClient({
   return (
     <PixViewer
       qrPayloadDataUrl={qrPayloadDataUrl}
-      qrKeyDataUrl={qrKeyDataUrl}
       payload={payload}
       pixKey={pixKey}
       status={currentStatus}
