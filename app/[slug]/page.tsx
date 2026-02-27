@@ -21,7 +21,31 @@ function buildNameLines(rawTitle: string) {
 
   const byMainDelimiters = clean.split(/\s*(?:\+|&|\be\b)\s*/i).filter(Boolean);
   if (byMainDelimiters.length >= 2) {
-    return byMainDelimiters.map((item) => item.trim()).filter(Boolean);
+    const [first, second] = byMainDelimiters.map((item) => item.trim()).filter(Boolean);
+    const compact = `${first} & ${second}`;
+    if (compact.length <= 24) {
+      return [compact];
+    }
+
+    const splitLongName = (name: string) => {
+      const words = name.split(" ");
+      const lines: string[] = [];
+      let current = "";
+      const maxChars = 16;
+      for (const word of words) {
+        const next = current ? `${current} ${word}` : word;
+        if (next.length > maxChars && current) {
+          lines.push(current);
+          current = word;
+        } else {
+          current = next;
+        }
+      }
+      if (current) lines.push(current);
+      return lines;
+    };
+
+    return [...splitLongName(first), "&", ...splitLongName(second)].slice(0, 6);
   }
 
   const words = clean.split(" ");
@@ -70,7 +94,9 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
   const nameSizeClass =
     longestLine > 18
       ? "text-[clamp(2rem,4.2vw,4rem)]"
-      : nameLines.length >= 3
+      : nameLines.length >= 4
+        ? "text-[clamp(1.85rem,3.8vw,3.45rem)]"
+        : nameLines.length >= 3
         ? "text-[clamp(2.2rem,4.5vw,4.5rem)]"
         : "text-[clamp(2.6rem,5.2vw,5.8rem)]";
   const rootStyle: CSSProperties = { "--font-heading": theme.headingFont } as CSSProperties;
@@ -93,7 +119,10 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
         }}
       >
         {nameLines.map((line) => (
-          <span key={line} className="block break-words">
+          <span
+            key={line}
+            className={`block break-words ${line === "&" ? "my-1 text-[0.58em] opacity-95" : ""}`}
+          >
             {line}
           </span>
         ))}
@@ -143,7 +172,8 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
             {theme.heroLayout === "overlay" ? (
               <div className={`relative overflow-hidden rounded-3xl border shadow-[0_30px_80px_-40px_rgba(0,0,0,.45)] ${theme.heroCardClass}`}>
                 <div className="relative min-h-[34rem] md:min-h-[42rem]">
-                  <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="h-full w-full object-cover" loading="eager" />
+                  <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="absolute inset-0 h-full w-full object-cover blur-[1.5px] scale-[1.03] opacity-45" loading="eager" />
+                  <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="h-full w-full object-contain md:object-cover" loading="eager" />
                   <div className={`absolute inset-0 ${theme.heroOverlay}`} />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,.08),transparent_56%)]" />
                   <div className="absolute inset-x-3 bottom-3 md:inset-x-6 md:bottom-6">
@@ -155,7 +185,8 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
               <div className={`overflow-hidden rounded-3xl border shadow-[0_30px_80px_-40px_rgba(0,0,0,.45)] ${theme.heroCardClass}`}>
                 <div className="grid lg:grid-cols-12">
                   <div className="relative min-h-[20rem] lg:col-span-7">
-                    <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="h-full w-full object-cover" loading="eager" />
+                    <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="absolute inset-0 h-full w-full object-cover blur-[1.5px] scale-[1.03] opacity-45" loading="eager" />
+                    <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="h-full w-full object-contain md:object-cover" loading="eager" />
                     <div className={`absolute inset-0 ${theme.heroOverlay}`} />
                   </div>
                   <div className={`flex items-center p-4 md:p-8 lg:col-span-5 ${theme.heroRightBgClass}`}>
@@ -167,7 +198,8 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
               <div className={`overflow-hidden rounded-3xl border shadow-[0_30px_80px_-40px_rgba(0,0,0,.45)] ${theme.heroCardClass}`}>
                 <div className="grid lg:grid-cols-12">
                   <div className="relative min-h-[21rem] lg:col-span-7">
-                    <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="h-full w-full object-cover" loading="eager" />
+                    <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="absolute inset-0 h-full w-full object-cover blur-[1.5px] scale-[1.03] opacity-45" loading="eager" />
+                    <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="h-full w-full object-contain md:object-cover" loading="eager" />
                     <div className={`absolute inset-0 ${theme.heroOverlay}`} />
                     <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,11,11,.35),transparent_45%,rgba(255,255,255,.06))]" />
                   </div>
