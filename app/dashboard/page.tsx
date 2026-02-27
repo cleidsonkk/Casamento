@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireCoupleContext } from "@/lib/currentUser";
 import { Card } from "@/components/ui/card";
@@ -33,11 +33,11 @@ export default async function DashboardPage() {
       <div className="flex items-end justify-between gap-4">
         <div>
           <p className="text-xs tracking-[0.2em] text-[var(--color-muted)]">VISAO GERAL</p>
-          <h1 className="mt-1 text-3xl">Painel dos noivos</h1>
+          <h1 className="mt-1 text-3xl md:text-4xl">Painel dos noivos</h1>
         </div>
         <Link
           href="/dashboard/site"
-          className="rounded-full border border-[var(--color-border)] bg-white/75 px-4 py-2 text-sm hover:bg-white"
+          className="rounded-full border border-[var(--color-border)] bg-white/85 px-4 py-2 text-sm shadow-sm hover:bg-white"
         >
           Editar site
         </Link>
@@ -66,7 +66,7 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      <Card className="border-white/70 bg-white/75 p-5 backdrop-blur">
+      <Card className="border-white/80 bg-white/80 p-5 shadow-[0_25px_60px_-42px_rgba(0,0,0,.45)] backdrop-blur">
         <h2 className="mb-2 text-2xl">Pedidos por status</h2>
         <OrdersChart data={byStatus} />
       </Card>

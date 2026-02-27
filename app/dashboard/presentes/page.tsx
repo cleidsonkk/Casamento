@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -81,7 +81,7 @@ export default function GiftsDashboardPage() {
   }
 
   return (
-    <Card className="p-4 md:p-5">
+    <Card className="border-white/80 bg-white/80 p-4 shadow-[0_24px_55px_-40px_rgba(0,0,0,.45)] backdrop-blur md:p-5">
       <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl">Presentes</h1>
@@ -97,7 +97,7 @@ export default function GiftsDashboardPage() {
           setPage(1);
         }}
         placeholder="Buscar presente"
-        className="mb-3 h-11 w-full rounded-xl border bg-white px-3 text-sm outline-none"
+        className="mb-3 h-11 w-full rounded-xl border bg-white/90 px-3 text-sm outline-none"
       />
 
       <p className="mb-3 text-sm text-[var(--color-muted)]">
@@ -108,7 +108,7 @@ export default function GiftsDashboardPage() {
         {pagedRows.map((row) => {
           const idx = rows.findIndex((item) => item.catalogItemId === row.catalogItemId);
           return (
-            <div key={row.catalogItemId} className="grid grid-cols-1 items-center gap-2 rounded-xl border p-3 text-sm md:grid-cols-12">
+            <div key={row.catalogItemId} className="grid grid-cols-1 items-center gap-2 rounded-xl border bg-white/90 p-3 text-sm md:grid-cols-12">
               <label className="md:col-span-1">
                 <input
                   type="checkbox"

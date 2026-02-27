@@ -7,6 +7,7 @@ import { getGiftImageUrl } from "@/lib/gift-image";
 import { formatBRLFromCents } from "@/lib/currency";
 import { getTemplateTheme } from "@/lib/template-theme";
 import { SmartImage } from "@/components/public/smart-image";
+import { AnimatedSection } from "@/components/public/animated-section";
 
 function formatEventDate(date: Date | null | undefined) {
   if (!date) return "12.12.2026";
@@ -53,8 +54,57 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
   const [nameA, nameB] = splitCoupleNames(couple.wedding.title);
   const longNames = nameA.length > 18 || nameB.length > 18;
 
+  const heroPanel = (
+    <div className={`relative w-full rounded-[2rem] border p-5 text-center shadow-[0_26px_60px_-36px_rgba(0,0,0,.42)] md:p-8 ${theme.heroCardClass}`}>
+      <p className={`mx-auto inline-flex rounded-full border px-6 py-1 text-xs tracking-[0.22em] ${theme.heroBadgeClass}`}>
+        WEDDING DAY
+      </p>
+      <div className={`mx-auto mt-4 h-px w-24 bg-gradient-to-r ${theme.heroDividerClass}`} />
+      <h1
+        className={`mt-4 font-semibold leading-[0.92] tracking-[-0.01em] ${
+          longNames ? "text-[clamp(2.3rem,4.6vw,4.6rem)]" : "text-[clamp(2.6rem,5.2vw,5.8rem)]"
+        }`}
+        style={{
+          fontFamily: "var(--font-heading)",
+          fontStyle: "italic",
+          backgroundImage: theme.heroNameGradient,
+          WebkitBackgroundClip: "text",
+          color: "transparent",
+          textShadow: theme.heroNameShadow,
+        }}
+      >
+        <span className="block">{nameA}</span>
+        {nameB ? (
+          <>
+            <span className={`mx-auto mt-1 block h-px w-14 bg-gradient-to-r ${theme.heroDividerClass}`} />
+            <span className="mt-2 block">{nameB}</span>
+          </>
+        ) : null}
+      </h1>
+      <p className={`mt-3 text-2xl font-medium tracking-[0.08em] ${theme.heroDateClass}`}>{date}</p>
+      <div className="mt-6 grid grid-cols-4 gap-2 md:gap-3">
+        {[
+          [String(Math.max(1, couple.guests.length || 42)), "DIAS"],
+          ["14", "HORAS"],
+          ["22", "MIN"],
+          ["05", "SEG"],
+        ].map(([value, label]) => (
+          <div key={label} className={`rounded-2xl border p-2 shadow-[0_10px_22px_-18px_rgba(0,0,0,.3)] md:p-3 ${theme.statBoxClass}`}>
+            <p className={`text-3xl leading-tight ${theme.titleClass}`}>{value}</p>
+            <p className={`text-[11px] tracking-[0.13em] ${theme.mutedClass}`}>{label}</p>
+          </div>
+        ))}
+      </div>
+      <Link href={`/${slug}/presentes`}>
+        <Button className={`mt-6 w-full rounded-2xl py-6 text-lg font-semibold md:w-auto md:px-14 ${theme.ctaClass}`}>
+          Presentear os noivos
+        </Button>
+      </Link>
+    </div>
+  );
+
   return (
-    <main className={`min-h-screen ${theme.shellClass}`}>
+    <main className={`min-h-screen ${theme.shellClass}`} style={{ ["--font-heading" as any]: theme.headingFont }}>
       <div className="mx-auto max-w-7xl px-4 py-4 md:px-6 md:py-6">
         <div className={`overflow-hidden rounded-[2rem] border shadow-[0_40px_80px_-50px_rgba(0,0,0,0.45)] ${theme.frameClass}`}>
           <header className={`border-b px-4 py-4 md:px-8 ${theme.navClass}`}>
@@ -72,88 +122,69 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
             </div>
           </header>
 
-          <section className="p-3 md:p-6">
-            <div className="overflow-hidden rounded-3xl border border-white/60 bg-white/65 shadow-[0_30px_80px_-40px_rgba(0,0,0,.45)] backdrop-blur">
-              <div className="grid lg:grid-cols-12">
-                <div className="relative min-h-[21rem] lg:col-span-7">
+          <AnimatedSection className="p-3 md:p-6">
+            {theme.heroLayout === "overlay" ? (
+              <div className={`relative overflow-hidden rounded-3xl border shadow-[0_30px_80px_-40px_rgba(0,0,0,.45)] ${theme.heroCardClass}`}>
+                <div className="relative min-h-[34rem] md:min-h-[42rem]">
                   <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="h-full w-full object-cover" loading="eager" />
                   <div className={`absolute inset-0 ${theme.heroOverlay}`} />
-                  <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,11,11,.35),transparent_45%,rgba(255,255,255,.06))]" />
-                </div>
-                <div className="relative flex items-center justify-center p-4 md:p-8 lg:col-span-5">
-                  <div className="absolute inset-0 bg-[linear-gradient(165deg,#fdfcf9_0%,#f7f1e6_45%,#fdfbf7_100%)]" />
-                  <div className="absolute inset-0 opacity-50 [background:radial-gradient(circle_at_18%_20%,rgba(203,169,113,.15),transparent_40%),radial-gradient(circle_at_90%_90%,rgba(188,146,85,.12),transparent_42%)]" />
-                  <div className="relative w-full rounded-[2rem] border border-[#e7decd] bg-white/88 p-5 text-center shadow-[0_26px_60px_-36px_rgba(0,0,0,.42)] md:p-8">
-                    <p className="mx-auto inline-flex rounded-full border border-[#d8cbb6] px-6 py-1 text-xs tracking-[0.22em] text-[#6f6659]">
-                      WEDDING DAY
-                    </p>
-                    <div className="mx-auto mt-4 h-px w-24 bg-gradient-to-r from-transparent via-[#d6ba89] to-transparent" />
-                    <h1
-                      className={`mt-4 font-semibold leading-[0.92] tracking-[-0.01em] ${
-                        longNames ? "text-[clamp(2.3rem,4.6vw,4.6rem)]" : "text-[clamp(2.6rem,5.2vw,5.8rem)]"
-                      }`}
-                      style={{
-                        fontFamily: "var(--font-heading)",
-                        fontStyle: "italic",
-                        backgroundImage: "linear-gradient(178deg,#efd6a3 0%,#c89c50 52%,#8f652c 100%)",
-                        WebkitBackgroundClip: "text",
-                        color: "transparent",
-                        textShadow: "0 6px 20px rgba(125,89,42,.2)",
-                      }}
-                    >
-                      <span className="block">{nameA}</span>
-                      {nameB ? (
-                        <>
-                          <span className="mx-auto mt-1 block h-px w-14 bg-gradient-to-r from-transparent via-[#caa970] to-transparent" />
-                          <span className="mt-2 block">{nameB}</span>
-                        </>
-                      ) : null}
-                    </h1>
-                    <p className="mt-3 text-2xl font-medium tracking-[0.08em] text-[#caaf84]">{date}</p>
-                    <div className="mt-6 grid grid-cols-4 gap-2 md:gap-3">
-                      {[
-                        [String(Math.max(1, couple.guests.length || 42)), "DIAS"],
-                        ["14", "HORAS"],
-                        ["22", "MIN"],
-                        ["05", "SEG"],
-                      ].map(([value, label]) => (
-                        <div key={label} className="rounded-2xl border border-[#ded4c6] bg-white p-2 shadow-[0_10px_22px_-18px_rgba(0,0,0,.3)] md:p-3">
-                          <p className="text-3xl leading-tight text-[#3f3c39]">{value}</p>
-                          <p className="text-[11px] tracking-[0.13em] text-[#777066]">{label}</p>
-                        </div>
-                      ))}
-                    </div>
-                    <Link href={`/${slug}/presentes`}>
-                      <Button className="mt-6 w-full rounded-2xl bg-[linear-gradient(110deg,#90601e,#b6822f,#dcac49)] py-6 text-lg font-semibold text-white shadow-[0_16px_30px_-16px_rgba(128,90,39,.72)] md:w-auto md:px-14">
-                        Presentear os noivos
-                      </Button>
-                    </Link>
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,.08),transparent_56%)]" />
+                  <div className="absolute inset-x-3 bottom-3 md:inset-x-6 md:bottom-6">
+                    {heroPanel}
                   </div>
                 </div>
               </div>
-            </div>
-          </section>
+            ) : theme.heroLayout === "editorial" ? (
+              <div className={`overflow-hidden rounded-3xl border shadow-[0_30px_80px_-40px_rgba(0,0,0,.45)] ${theme.heroCardClass}`}>
+                <div className="grid lg:grid-cols-12">
+                  <div className="relative min-h-[20rem] lg:col-span-8">
+                    <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="h-full w-full object-cover" loading="eager" />
+                    <div className={`absolute inset-0 ${theme.heroOverlay}`} />
+                  </div>
+                  <div className={`flex items-center p-4 md:p-8 lg:col-span-4 ${theme.heroRightBgClass}`}>
+                    {heroPanel}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className={`overflow-hidden rounded-3xl border shadow-[0_30px_80px_-40px_rgba(0,0,0,.45)] ${theme.heroCardClass}`}>
+                <div className="grid lg:grid-cols-12">
+                  <div className="relative min-h-[21rem] lg:col-span-7">
+                    <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="h-full w-full object-cover" loading="eager" />
+                    <div className={`absolute inset-0 ${theme.heroOverlay}`} />
+                    <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,11,11,.35),transparent_45%,rgba(255,255,255,.06))]" />
+                  </div>
+                  <div className="relative flex items-center justify-center p-4 md:p-8 lg:col-span-5">
+                    <div className={`absolute inset-0 ${theme.heroRightBgClass}`} />
+                    <div className="absolute inset-0 opacity-50 [background:radial-gradient(circle_at_18%_20%,rgba(203,169,113,.15),transparent_40%),radial-gradient(circle_at_90%_90%,rgba(188,146,85,.12),transparent_42%)]" />
+                    {heroPanel}
+                  </div>
+                </div>
+              </div>
+            )}
+          </AnimatedSection>
 
-          <section className="px-3 pb-3 md:px-6 md:pb-6">
-            <Card className="grid gap-3 border-white/70 bg-white/75 p-4 md:grid-cols-3">
-              <div className="rounded-xl border bg-white/80 p-3">
-                <p className="text-3xl">{confirmed}</p>
-                <p className="text-sm text-[var(--color-muted)]">Confirmados</p>
+          <AnimatedSection className="px-3 pb-3 md:px-6 md:pb-6">
+            <Card className={`grid gap-3 p-4 md:grid-cols-3 ${theme.contentCardClass}`}>
+              <div className={`rounded-xl border p-3 ${theme.statBoxClass}`}>
+                <p className={`text-3xl ${theme.titleClass}`}>{confirmed}</p>
+                <p className={`text-sm ${theme.mutedClass}`}>Confirmados</p>
               </div>
-              <div className="rounded-xl border bg-white/80 p-3">
-                <p className="text-3xl">{couple.gifts.length}</p>
-                <p className="text-sm text-[var(--color-muted)]">Presentes ativos</p>
+              <div className={`rounded-xl border p-3 ${theme.statBoxClass}`}>
+                <p className={`text-3xl ${theme.titleClass}`}>{couple.gifts.length}</p>
+                <p className={`text-sm ${theme.mutedClass}`}>Presentes ativos</p>
               </div>
-              <div className="rounded-xl border bg-white/80 p-3">
-                <p className="text-xl">{couple.name.toLowerCase().replaceAll(" ", "")}.com</p>
-                <p className="text-sm text-[var(--color-muted)]">Link do casal</p>
+              <div className={`rounded-xl border p-3 ${theme.statBoxClass}`}>
+                <p className={`text-xl ${theme.titleClass}`}>{couple.name.toLowerCase().replaceAll(" ", "")}.com</p>
+                <p className={`text-sm ${theme.mutedClass}`}>Link do casal</p>
               </div>
             </Card>
-          </section>
+          </AnimatedSection>
 
           <section className="grid gap-4 px-3 pb-8 md:px-6 lg:grid-cols-12">
             <div className="space-y-4 lg:col-span-8">
-              <Card id="historia" className="grid gap-4 border-white/70 bg-white/80 p-4 md:grid-cols-12 md:p-6">
+              <AnimatedSection>
+                <Card id="historia" className={`grid gap-4 p-4 md:grid-cols-12 md:p-6 ${theme.contentCardClass}`}>
                 <SmartImage
                   src={galleryUrls[0] || "https://images.unsplash.com/photo-1529636798458-92182e662485?w=1200&q=80&auto=format&fit=crop"}
                   alt="Historia do casal"
@@ -161,7 +192,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                 />
                 <div className="md:col-span-7">
                   <h2 className={`text-4xl ${theme.titleClass}`}>Historia do Casal</h2>
-                  <p className="mt-3 text-[var(--color-muted)]">
+                  <p className={`mt-3 ${theme.mutedClass}`}>
                     {couple.wedding.story ?? "Uma historia de amor, parceria e celebracao com as pessoas mais importantes."}
                   </p>
                   <Link href={`/${slug}/rsvp`}>
@@ -169,11 +200,13 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                   </Link>
                 </div>
               </Card>
+              </AnimatedSection>
 
-              <Card className="grid gap-4 border-white/70 bg-white/80 p-4 md:grid-cols-2 md:p-6">
+              <AnimatedSection>
+                <Card className={`grid gap-4 p-4 md:grid-cols-2 md:p-6 ${theme.contentCardClass}`}>
                 <div>
                   <h3 className={`text-3xl ${theme.titleClass}`}>Album de Fotos</h3>
-                  <p className="mt-2 text-sm text-[var(--color-muted)]">Momentos que marcaram nossa historia.</p>
+                  <p className={`mt-2 text-sm ${theme.mutedClass}`}>Momentos que marcaram nossa historia.</p>
                   <div className="mt-4 grid grid-cols-3 gap-2">
                     {(galleryUrls.length ? galleryUrls : [
                       "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1200&q=80&auto=format&fit=crop",
@@ -184,9 +217,9 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                     ))}
                   </div>
                 </div>
-                <div className="rounded-2xl border bg-white/70 p-4">
+                <div className={`rounded-2xl border p-4 ${theme.statBoxClass}`}>
                   <h3 className={`text-3xl ${theme.titleClass}`}>Confirmacao de Presenca</h3>
-                  <p className="mt-2 text-sm text-[var(--color-muted)]">
+                  <p className={`mt-2 text-sm ${theme.mutedClass}`}>
                     Sua presenca torna nosso dia ainda mais especial. Confirme em menos de 1 minuto.
                   </p>
                   <div className="mt-5">
@@ -196,22 +229,23 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                   </div>
                 </div>
               </Card>
+              </AnimatedSection>
             </div>
 
-            <aside id="presentes" className="lg:col-span-4">
+            <AnimatedSection id="presentes" className="lg:col-span-4">
               <Card className={`border-white/70 p-4 ${theme.sidebarCardClass}`}>
                 <h3 className={`text-3xl ${theme.titleClass}`}>Lista de Presentes</h3>
-                <p className="mb-4 mt-1 text-sm text-[var(--color-muted)]">Contribua com um presente via Pix.</p>
+                <p className={`mb-4 mt-1 text-sm ${theme.mutedClass}`}>Contribua com um presente via Pix.</p>
                 <div className="space-y-3">
                   {couple.gifts.slice(0, 4).map((gift) => (
-                    <div key={gift.id} className="rounded-xl border bg-white/80 p-2">
+                    <div key={gift.id} className={`rounded-xl border p-2 ${theme.statBoxClass}`}>
                       <SmartImage
                         src={getGiftImageUrl(gift.catalogItem.imageUrl, gift.catalogItem.title, gift.catalogItem.category)}
                         alt={gift.catalogItem.title}
                         className="aspect-[4/3] w-full rounded-lg object-cover"
                       />
-                      <p className="mt-2 text-sm">{gift.catalogItem.title}</p>
-                      <p className="text-xs text-[var(--color-muted)]">{formatBRLFromCents(gift.priceCents)}</p>
+                      <p className={`mt-2 text-sm ${theme.titleClass}`}>{gift.catalogItem.title}</p>
+                      <p className={`text-xs ${theme.mutedClass}`}>{formatBRLFromCents(gift.priceCents)}</p>
                       <Link href={`/${slug}/presentes`}>
                         <Button variant="outline" className="mt-2 w-full">Dar presente</Button>
                       </Link>
@@ -219,7 +253,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                   ))}
                 </div>
               </Card>
-            </aside>
+            </AnimatedSection>
           </section>
         </div>
       </div>

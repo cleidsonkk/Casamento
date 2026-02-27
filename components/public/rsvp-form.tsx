@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,12 +15,12 @@ type ConfirmationState = {
 
 export function RsvpForm({ slug }: { slug: string }) {
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<"YES" | "NO">("YES");
   const [confirmed, setConfirmed] = useState<ConfirmationState | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const status = (String(fd.get("status") || "YES") as "YES" | "NO");
     const companions = Number(String(fd.get("companions") || "0"));
     const name = String(fd.get("name") || "").trim();
 
@@ -50,6 +50,7 @@ export function RsvpForm({ slug }: { slug: string }) {
     setConfirmed({ name, companions, status });
     toast.success("Presenca registrada com sucesso");
     e.currentTarget.reset();
+    setStatus("YES");
   }
 
   async function share() {
@@ -71,20 +72,41 @@ export function RsvpForm({ slug }: { slug: string }) {
     <div className="space-y-4">
       <form className="space-y-3" onSubmit={handleSubmit}>
         <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" />
-        <Input name="name" placeholder="Nome completo" required />
+        <Input name="name" placeholder="Nome completo" required className="h-12 rounded-2xl bg-white/90" />
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <select name="status" className="h-11 rounded-[var(--radius-input)] border bg-white px-3 text-sm">
-            <option value="YES">Vou ao casamento</option>
-            <option value="NO">Nao poderei ir</option>
-          </select>
-          <Input name="companions" type="number" min={0} max={10} defaultValue={0} placeholder="Acompanhantes" />
+        <div className="grid grid-cols-2 gap-2 rounded-2xl border bg-white/85 p-1">
+          <button
+            type="button"
+            onClick={() => setStatus("YES")}
+            className={`h-10 rounded-xl text-sm transition ${status === "YES" ? "bg-black text-white" : "text-[var(--color-muted)]"}`}
+          >
+            Vou ao casamento
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatus("NO")}
+            className={`h-10 rounded-xl text-sm transition ${status === "NO" ? "bg-black text-white" : "text-[var(--color-muted)]"}`}
+          >
+            Nao poderei ir
+          </button>
         </div>
 
-        <Input name="passcode" placeholder="Codigo (se solicitado)" />
-        <Textarea name="message" placeholder="Mensagem para os noivos" />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Input
+            name="companions"
+            type="number"
+            min={0}
+            max={10}
+            defaultValue={0}
+            placeholder="Acompanhantes"
+            className="h-12 rounded-2xl bg-white/90"
+          />
+          <Input name="passcode" placeholder="Codigo (se solicitado)" className="h-12 rounded-2xl bg-white/90" />
+        </div>
 
-        <Button disabled={loading} className="w-full">
+        <Textarea name="message" placeholder="Mensagem para os noivos" className="min-h-28 rounded-2xl bg-white/90" />
+
+        <Button disabled={loading} className="h-12 w-full rounded-2xl text-base">
           {loading ? "Enviando..." : "Confirmar presenca"}
         </Button>
       </form>
@@ -100,20 +122,20 @@ export function RsvpForm({ slug }: { slug: string }) {
             <p className="text-xs tracking-[0.14em] text-[var(--color-muted)]">CONFIRMACAO ENVIADA</p>
             <h3 className="mt-1 text-xl">Resumo do RSVP</h3>
             <div className="mt-3 grid gap-2 text-sm sm:grid-cols-3">
-              <div className="rounded-xl border bg-white/75 p-3">
+              <div className="rounded-xl border bg-white/80 p-3">
                 <p className="text-xs text-[var(--color-muted)]">Nome</p>
                 <p>{confirmed.name}</p>
               </div>
-              <div className="rounded-xl border bg-white/75 p-3">
+              <div className="rounded-xl border bg-white/80 p-3">
                 <p className="text-xs text-[var(--color-muted)]">Status</p>
                 <p>{confirmed.status === "YES" ? "Presenca confirmada" : "Nao podera comparecer"}</p>
               </div>
-              <div className="rounded-xl border bg-white/75 p-3">
+              <div className="rounded-xl border bg-white/80 p-3">
                 <p className="text-xs text-[var(--color-muted)]">Acompanhantes</p>
                 <p>{confirmed.companions}</p>
               </div>
             </div>
-            <Button type="button" variant="outline" className="mt-3 w-full sm:w-auto" onClick={share}>
+            <Button type="button" variant="outline" className="mt-3 w-full rounded-xl sm:w-auto" onClick={share}>
               Compartilhar link RSVP
             </Button>
           </motion.div>

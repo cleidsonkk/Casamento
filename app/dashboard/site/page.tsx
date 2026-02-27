@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -194,7 +194,7 @@ export default function DashboardSitePage() {
   }
 
   return (
-    <Card className="w-full max-w-5xl border-white/70 bg-white/75 p-4 backdrop-blur md:p-6">
+    <Card className="w-full max-w-5xl border-white/80 bg-white/80 p-4 shadow-[0_24px_55px_-40px_rgba(0,0,0,.45)] backdrop-blur md:p-6">
       <h1 className="mb-4 text-3xl">Site do casamento</h1>
       <form className="space-y-4" onSubmit={saveForm}>
         <Input name="title" defaultValue={wedding.title ?? ""} placeholder="Titulo" />
@@ -269,7 +269,7 @@ export default function DashboardSitePage() {
               applyTemplatePreview(template?.tokensJson);
               await saveTemplateInstant(id);
             }}
-            className="h-11 w-full rounded-[var(--radius-input)] border bg-white px-3 text-sm"
+            className="h-11 w-full rounded-[var(--radius-input)] border bg-white/90 px-3 text-sm"
           >
             <option value="">Selecione um template</option>
             {templates.map((template) => (

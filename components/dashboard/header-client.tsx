@@ -44,24 +44,27 @@ export function DashboardHeaderClient({
   }
 
   return (
-    <header className={`sticky top-0 z-30 border-b backdrop-blur ${dark ? "border-white/10 bg-black/35" : "border-black/10 bg-white/60"}`}>
+    <header className={`sticky top-0 z-30 border-b backdrop-blur ${dark ? "border-white/10 bg-black/45" : "border-white/60 bg-white/70"}`}>
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
-        <p className={`text-sm ${baseClass}`}>{title}</p>
+        <div>
+          <p className={`text-[11px] tracking-[0.18em] ${dark ? "text-white/70" : "text-[var(--color-muted)]"}`}>PAINEL LUXO 2026</p>
+          <p className={`text-sm ${baseClass}`}>{title}</p>
+        </div>
 
         <div className="hidden items-center gap-2 md:flex">
-          <nav className="flex items-center gap-1 overflow-auto">
+          <nav className="flex items-center gap-1 overflow-auto rounded-full border border-white/60 bg-white/60 p-1">
             {links.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-full px-3 py-1 text-sm ${baseClass} ${hoverClass} ${pathname === item.href ? activeClass : ""}`}
+                className={`rounded-full px-3 py-1 text-sm ${baseClass} ${hoverClass} ${pathname === item.href ? activeClass : ""} transition`}
               >
                 {item.label}
               </Link>
             ))}
           </nav>
           <select
-            className={`h-9 rounded-full border px-3 text-sm ${dark ? "border-white/20 bg-black/30 text-white" : "border-[var(--color-border)] bg-white"}`}
+            className={`h-9 rounded-full border px-3 text-sm ${dark ? "border-white/20 bg-black/30 text-white" : "border-[var(--color-border)] bg-white/90 shadow-sm"}`}
             value={currentCoupleId}
             disabled={switching}
             onChange={(e) => switchCouple(e.target.value)}
@@ -72,7 +75,7 @@ export function DashboardHeaderClient({
               </option>
             ))}
           </select>
-          <div className={`rounded-full px-3 py-1 text-sm ${baseClass} ${dark ? "bg-white/10" : "bg-white/80"}`}>
+          <div className={`rounded-full px-3 py-1 text-sm ${baseClass} ${dark ? "bg-white/10" : "bg-white/90 shadow-sm"}`}>
             {userName || "Noivos"}
           </div>
           <Button
@@ -96,7 +99,7 @@ export function DashboardHeaderClient({
       </div>
 
       {open ? (
-        <div className={`border-t px-4 pb-4 pt-2 md:hidden ${dark ? "border-white/10 bg-black/40" : "border-black/10 bg-white/90"}`}>
+        <div className={`border-t px-4 pb-4 pt-2 md:hidden ${dark ? "border-white/10 bg-black/40" : "border-white/70 bg-white/90"}`}>
           <p className={`mb-2 text-sm ${baseClass}`}>{userName || "Noivos"}</p>
           <select
             className={`mb-3 h-10 w-full rounded-xl border px-3 text-sm ${dark ? "border-white/20 bg-black/30 text-white" : "border-[var(--color-border)] bg-white"}`}

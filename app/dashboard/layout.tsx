@@ -1,4 +1,4 @@
-﻿import { requireCoupleContext } from "@/lib/currentUser";
+import { requireCoupleContext } from "@/lib/currentUser";
 import { requireSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getTemplateTheme } from "@/lib/template-theme";
@@ -35,7 +35,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const couples = memberships.map((item) => item.couple);
 
   return (
-    <main className={`min-h-screen ${theme.shellClass}`}>
+    <main className={`relative min-h-screen overflow-hidden ${theme.shellClass}`}>
+      <div className="pointer-events-none absolute -left-24 top-20 h-80 w-80 rounded-full bg-white/35 blur-3xl" />
+      <div className="pointer-events-none absolute -right-24 bottom-16 h-96 w-96 rounded-full bg-black/10 blur-3xl" />
       <DashboardHeaderClient
         title="Dashboard dos Noivos"
         dark={dark}
@@ -44,7 +46,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         couples={couples}
         currentCoupleId={coupleId}
       />
-      <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">{children}</div>
+      <div className="relative mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">{children}</div>
     </main>
   );
 }

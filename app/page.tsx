@@ -1,14 +1,15 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export default function HomePage() {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_10%_10%,#fff8ee_0%,#f6f4ef_35%,#f1eee7_100%)]">
-      <div className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-[#f2ddbb]/50 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 -right-20 h-72 w-72 rounded-full bg-[#ebd7b7]/40 blur-3xl" />
+    <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_10%_0%,#fff8ef_0%,#f5f1e8_45%,#ece7dc_100%)]">
+      <div className="pointer-events-none absolute -left-24 top-16 h-96 w-96 rounded-full bg-[#f1d7a5]/45 blur-3xl" />
+      <div className="pointer-events-none absolute -right-28 bottom-10 h-[28rem] w-[28rem] rounded-full bg-[#d7c3a0]/35 blur-3xl" />
 
       <div className="mx-auto max-w-7xl px-6 py-8 md:py-10">
         <motion.header
@@ -19,7 +20,7 @@ export default function HomePage() {
         >
           <div>
             <p className="text-sm tracking-[0.24em] text-[#776a56]">AUREA WEDDINGS</p>
-            <p className="text-xs text-[#8a806f]">Luxury wedding platform for modern couples</p>
+            <p className="text-xs text-[#8a806f]">Plataforma premium para sites de casamento</p>
           </div>
           <Link href="/login">
             <Button variant="outline" className="rounded-full px-6">
@@ -41,23 +42,23 @@ export default function HomePage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.35, delay: 0.2 }}
             >
-              LUXURY SAAS 2026
+              PADRAO 2026
             </motion.p>
             <h1 className="text-5xl leading-[0.95] md:text-7xl">
-              A marca premium
+              Site de casamento
               <span className="block bg-gradient-to-r from-[#8f6324] via-[#c89748] to-[#875a1d] bg-clip-text text-transparent">
-                para casamentos de alto padrao
+                realmente sofisticado
               </span>
             </h1>
             <p className="mt-5 max-w-xl text-lg text-[#61594d]">
-              AUREA WEDDINGS combina design editorial, RSVP inteligente, presentes com Pix e operacao completa para noivos e convidados.
+              RSVP inteligente, lista de presentes com Pix e dashboard completo para noivos, com visual editorial e performance.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
               <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
                 <Link href="/ana-e-bruno">
                   <Button className="rounded-full bg-[linear-gradient(110deg,#8a5d1f,#c08b36,#d8a746)] px-7 py-6 text-base text-white">
-                    Ver demonstracao ao vivo
+                    Ver site publicado
                   </Button>
                 </Link>
               </motion.div>
@@ -83,7 +84,7 @@ export default function HomePage() {
               transition={{ duration: 0.25 }}
             >
               <div className="overflow-hidden rounded-3xl border border-white/70">
-                <div className="h-56 bg-[url('https://images.pexels.com/photos/2959192/pexels-photo-2959192.jpeg?auto=compress&cs=tinysrgb&w=1600')] bg-cover bg-center" />
+                <div className="h-56 bg-[url('https://images.pexels.com/photos/169198/pexels-photo-169198.jpeg?auto=compress&cs=tinysrgb&w=1600')] bg-cover bg-center" />
 
                 <div className="grid gap-3 bg-[linear-gradient(180deg,#fffdf9,#f6efe3)] p-5 sm:grid-cols-3">
                   <div className="rounded-2xl border bg-white/90 p-4">
@@ -105,6 +106,19 @@ export default function HomePage() {
               </div>
             </motion.div>
           </motion.div>
+        </section>
+
+        <section className="mt-10 grid gap-4 md:grid-cols-3">
+          {[
+            ["Templates premium", "6 estilos exclusivos com visual editorial e identidade completa."],
+            ["Checkout Pix confiavel", "QR code valido, copia e cola e confirmacao de pagamento."],
+            ["Dashboard dos noivos", "Gestao de convidados, pedidos, links e personalizacao total."],
+          ].map(([title, text]) => (
+            <Card key={title} className="rounded-2xl border-white/70 bg-white/75 p-5 backdrop-blur">
+              <h3 className="text-2xl">{title}</h3>
+              <p className="mt-2 text-sm text-[var(--color-muted)]">{text}</p>
+            </Card>
+          ))}
         </section>
       </div>
     </main>

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
@@ -12,12 +12,12 @@ export default function RsvpDashboardPage() {
   }, []);
 
   return (
-    <Card className="p-4 md:p-5">
+    <Card className="border-white/80 bg-white/80 p-4 shadow-[0_24px_55px_-40px_rgba(0,0,0,.45)] backdrop-blur md:p-5">
       <h1 className="mb-4 text-3xl">RSVPs</h1>
 
       <div className="space-y-3 md:hidden">
         {items.map((item) => (
-          <div key={item.id} className="rounded-xl border bg-white/80 p-3">
+          <div key={item.id} className="rounded-xl border bg-white/90 p-3">
             <p className="font-medium">{item.guestName}</p>
             <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
               <div>
@@ -39,7 +39,7 @@ export default function RsvpDashboardPage() {
 
       <div className="hidden space-y-2 md:block">
         {items.map((item) => (
-          <div key={item.id} className="grid grid-cols-4 rounded-xl border px-3 py-2 text-sm">
+          <div key={item.id} className="grid grid-cols-4 rounded-xl border bg-white/90 px-3 py-2 text-sm">
             <span>{item.guestName}</span>
             <span>{item.status}</span>
             <span>{item.companions}</span>

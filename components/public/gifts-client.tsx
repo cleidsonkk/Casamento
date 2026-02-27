@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -88,66 +88,68 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-3 lg:grid-cols-12">
-        <div className="lg:col-span-5">
-          <Input
-            placeholder="Buscar presente por nome, categoria ou descricao"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="h-12 rounded-2xl bg-white/85"
-          />
+      <div className="sticky top-4 z-10 rounded-2xl border border-white/70 bg-white/75 p-3 shadow-[0_20px_40px_-30px_rgba(0,0,0,.45)] backdrop-blur">
+        <div className="grid gap-3 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <Input
+              placeholder="Buscar presente por nome, categoria ou descricao"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="h-12 rounded-2xl bg-white/85"
+            />
+          </div>
+          <div className="lg:col-span-4">
+            <select
+              className="h-12 w-full rounded-2xl border bg-white/85 px-4 text-sm"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat === "all" ? "Todas as categorias" : cat}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="lg:col-span-3">
+            <select
+              className="h-12 w-full rounded-2xl border bg-white/85 px-4 text-sm"
+              value={sort}
+              onChange={(e) => setSort(e.target.value as "asc" | "desc")}
+            >
+              <option value="asc">Menor valor</option>
+              <option value="desc">Maior valor</option>
+            </select>
+          </div>
         </div>
-        <div className="lg:col-span-4">
-          <select
-            className="h-12 w-full rounded-2xl border bg-white/85 px-4 text-sm"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat === "all" ? "Todas as categorias" : cat}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="lg:col-span-3">
-          <select
-            className="h-12 w-full rounded-2xl border bg-white/85 px-4 text-sm"
-            value={sort}
-            onChange={(e) => setSort(e.target.value as "asc" | "desc")}
-          >
-            <option value="asc">Menor valor</option>
-            <option value="desc">Maior valor</option>
-          </select>
-        </div>
-      </div>
 
-      <div className="flex flex-wrap gap-2">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            type="button"
-            onClick={() => setCategory(cat)}
-            className={`rounded-full border px-4 py-2 text-sm transition ${
-              category === cat ? "border-black bg-black text-white" : "border-[var(--color-border)] bg-white/85"
-            }`}
-          >
-            {cat === "all" ? "Todas" : cat}
-          </button>
-        ))}
+        <div className="mt-3 flex flex-wrap gap-2">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setCategory(cat)}
+              className={`rounded-full border px-4 py-2 text-sm transition ${
+                category === cat ? "border-black bg-black text-white" : "border-[var(--color-border)] bg-white/85"
+              }`}
+            >
+              {cat === "all" ? "Todas" : cat}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {filtered.map((gift) => (
-          <Card key={gift.id} className="overflow-hidden border-white/80 bg-white/85 p-0 shadow-[0_25px_50px_-35px_rgba(0,0,0,0.5)]">
-            <div className="relative">
+          <Card key={gift.id} className="group overflow-hidden border-white/80 bg-white/85 p-0 shadow-[0_25px_50px_-35px_rgba(0,0,0,0.5)] transition duration-300 hover:-translate-y-1">
+            <div className="relative overflow-hidden">
               <SmartImage
                 src={getGiftImageUrl(gift.imageUrl, gift.title, gift.category)}
                 alt={gift.title}
-                className="h-48 w-full object-cover transition duration-500 hover:scale-[1.03]"
+                className="h-48 w-full object-cover transition duration-500 group-hover:scale-[1.04]"
                 loading="lazy"
               />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-4 pb-3 pt-8">
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 to-transparent px-4 pb-3 pt-8">
                 <p className="text-xs text-white/90">{gift.category}</p>
                 <p className="text-lg text-white">{gift.title}</p>
               </div>
@@ -177,6 +179,12 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
         ))}
       </div>
 
+      {!filtered.length ? (
+        <Card className="rounded-2xl border border-white/80 bg-white/80 p-8 text-center text-[var(--color-muted)]">
+          Nenhum presente encontrado com esses filtros.
+        </Card>
+      ) : null}
+
       {mounted
         ? createPortal(
             <AnimatePresence>
@@ -198,7 +206,7 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
                   >
                     <h3 className="mb-1 text-2xl">Finalizar presente</h3>
                     <p className="mb-4 text-sm text-[var(--color-muted)]">
-                      {selected.title} {" · "} {formatBRLFromCents(selected.priceCents)}
+                      {selected.title} {" Â· "} {formatBRLFromCents(selected.priceCents)}
                     </p>
                     <form className="space-y-3" onSubmit={checkout}>
                       <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" />
@@ -209,7 +217,7 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
                         required
                         className="h-11 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-white px-3 text-sm outline-none transition focus:ring-2 focus:ring-[var(--color-primary)]/20"
                       />
-                      <Textarea name="message" placeholder="Mensagem para os noivos" />
+                      <Textarea name="message" placeholder="Mensagem para os noivos" className="rounded-2xl" />
                       <div className="grid grid-cols-2 gap-2">
                         <Button type="button" variant="outline" className="h-11 rounded-xl" onClick={() => setSelected(null)}>
                           Cancelar
@@ -227,4 +235,3 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
     </div>
   );
 }
-

@@ -22,13 +22,13 @@ export default async function DashboardLogsPage() {
   });
 
   return (
-    <Card className="p-4 md:p-5">
+    <Card className="border-white/80 bg-white/80 p-4 shadow-[0_24px_55px_-40px_rgba(0,0,0,.45)] backdrop-blur md:p-5">
       <h1 className="mb-1 text-3xl">Logs de auditoria</h1>
       <p className="mb-4 text-sm text-[var(--color-muted)]">Acoes criticas realizadas no seu painel.</p>
 
       <div className="space-y-3">
         {logs.map((log) => (
-          <div key={log.id} className="rounded-xl border bg-white/80 p-3">
+          <div key={log.id} className="rounded-xl border bg-white/90 p-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-sm font-medium">{log.action}</p>
               <span
@@ -51,4 +51,3 @@ export default async function DashboardLogsPage() {
     </Card>
   );
 }
-
