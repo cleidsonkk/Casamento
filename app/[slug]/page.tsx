@@ -13,6 +13,19 @@ function formatEventDate(date: Date | null | undefined) {
   return new Intl.DateTimeFormat("pt-BR").format(date).replaceAll("/", ".");
 }
 
+function splitCoupleNames(rawTitle: string) {
+  const clean = rawTitle.replace(/\s+/g, " ").trim();
+  const byMainDelimiters = clean.split(/\s*(?:\+|&|\be\b)\s*/i).filter(Boolean);
+  if (byMainDelimiters.length >= 2) {
+    return [byMainDelimiters[0], byMainDelimiters.slice(1).join(" ")];
+  }
+
+  const words = clean.split(" ");
+  if (words.length <= 1) return [clean, ""];
+  const mid = Math.ceil(words.length / 2);
+  return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
+}
+
 export default async function WeddingPublicPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const couple = await db.couple.findUnique({
@@ -37,12 +50,8 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
   const galleryUrls =
     couple.wedding.gallery.map((item) => item.imageUrl).filter(Boolean) ||
     [];
-  const titleText = couple.wedding.title.replace("+", "&");
-  const [nameA, nameB] = titleText.includes("&")
-    ? titleText.split("&").map((p) => p.trim())
-    : titleText.split(" ").length > 1
-      ? [titleText.split(" ")[0], titleText.split(" ").slice(1).join(" ")]
-      : [titleText, ""];
+  const [nameA, nameB] = splitCoupleNames(couple.wedding.title);
+  const longNames = nameA.length > 18 || nameB.length > 18;
 
   return (
     <main className={`min-h-screen ${theme.shellClass}`}>
@@ -80,7 +89,9 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                     </p>
                     <div className="mx-auto mt-4 h-px w-24 bg-gradient-to-r from-transparent via-[#d6ba89] to-transparent" />
                     <h1
-                      className="mt-4 text-5xl font-semibold leading-[0.9] tracking-[-0.01em] md:text-7xl"
+                      className={`mt-4 font-semibold leading-[0.92] tracking-[-0.01em] ${
+                        longNames ? "text-[clamp(2.3rem,4.6vw,4.6rem)]" : "text-[clamp(2.6rem,5.2vw,5.8rem)]"
+                      }`}
                       style={{
                         fontFamily: "var(--font-heading)",
                         fontStyle: "italic",
@@ -90,8 +101,13 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                         textShadow: "0 6px 20px rgba(125,89,42,.2)",
                       }}
                     >
-                      {nameA}
-                      {nameB ? <><br />{nameB}</> : null}
+                      <span className="block">{nameA}</span>
+                      {nameB ? (
+                        <>
+                          <span className="mx-auto mt-1 block h-px w-14 bg-gradient-to-r from-transparent via-[#caa970] to-transparent" />
+                          <span className="mt-2 block">{nameB}</span>
+                        </>
+                      ) : null}
                     </h1>
                     <p className="mt-3 text-2xl font-medium tracking-[0.08em] text-[#caaf84]">{date}</p>
                     <div className="mt-6 grid grid-cols-4 gap-2 md:gap-3">
@@ -141,7 +157,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                 <SmartImage
                   src={galleryUrls[0] || "https://images.unsplash.com/photo-1529636798458-92182e662485?w=1200&q=80&auto=format&fit=crop"}
                   alt="Historia do casal"
-                  className="h-56 w-full rounded-2xl object-cover md:col-span-5"
+                  className="h-56 w-full rounded-2xl object-cover md:col-span-5 md:h-full"
                 />
                 <div className="md:col-span-7">
                   <h2 className={`text-4xl ${theme.titleClass}`}>Historia do Casal</h2>
@@ -164,7 +180,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                       "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=1200&q=80&auto=format&fit=crop",
                       "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=1200&q=80&auto=format&fit=crop",
                     ]).slice(0, 6).map((url) => (
-                      <SmartImage key={url} src={url} alt="Foto do casal" className="h-24 w-full rounded-lg object-cover md:h-28" />
+                      <SmartImage key={url} src={url} alt="Foto do casal" className="aspect-[4/3] w-full rounded-lg object-cover" />
                     ))}
                   </div>
                 </div>
@@ -192,7 +208,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                       <SmartImage
                         src={getGiftImageUrl(gift.catalogItem.imageUrl, gift.catalogItem.title, gift.catalogItem.category)}
                         alt={gift.catalogItem.title}
-                        className="h-28 w-full rounded-lg object-cover"
+                        className="aspect-[4/3] w-full rounded-lg object-cover"
                       />
                       <p className="mt-2 text-sm">{gift.catalogItem.title}</p>
                       <p className="text-xs text-[var(--color-muted)]">{formatBRLFromCents(gift.priceCents)}</p>
