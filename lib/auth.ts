@@ -20,8 +20,9 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) return null;
+        const email = credentials.email.trim().toLowerCase();
         const user = await db.user.findUnique({
-          where: { email: credentials.email },
+          where: { email },
           include: { coupleMembers: { orderBy: { createdAt: "desc" } } },
         });
         if (!user) return null;
