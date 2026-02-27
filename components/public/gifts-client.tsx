@@ -25,10 +25,12 @@ type Gift = {
 };
 
 export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
+  const PAGE_SIZE = 12;
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
-  const [sort, setSort] = useState<"asc" | "desc">("asc");
+  const [sort, setSort] = useState<"asc" | "desc" | "alpha">("asc");
   const [selected, setSelected] = useState<Gift | null>(null);
+  const [page, setPage] = useState(1);
   const nameInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -55,9 +57,13 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
       items
         .filter((item) => (category === "all" ? true : item.category === category))
         .filter((item) => `${item.title} ${item.description}`.toLowerCase().includes(query.toLowerCase()))
-        .sort((a, b) => (sort === "asc" ? a.priceCents - b.priceCents : b.priceCents - a.priceCents)),
+        .sort((a, b) => {
+          if (sort === "alpha") return a.title.localeCompare(b.title, "pt-BR");
+          return sort === "asc" ? a.priceCents - b.priceCents : b.priceCents - a.priceCents;
+        }),
     [category, items, query, sort],
   );
+  const visibleItems = filtered.slice(0, page * PAGE_SIZE);
 
   async function checkout(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -89,7 +95,10 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
             <Input
               placeholder="Buscar presente por nome, categoria ou descricao"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setPage(1);
+              }}
               className="h-12 rounded-2xl bg-white/85"
             />
           </div>
@@ -97,7 +106,10 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
             <select
               className="h-12 w-full rounded-2xl border bg-white/85 px-4 text-sm"
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                setPage(1);
+              }}
             >
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
@@ -110,10 +122,14 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
             <select
               className="h-12 w-full rounded-2xl border bg-white/85 px-4 text-sm"
               value={sort}
-              onChange={(e) => setSort(e.target.value as "asc" | "desc")}
+              onChange={(e) => {
+                setSort(e.target.value as "asc" | "desc" | "alpha");
+                setPage(1);
+              }}
             >
               <option value="asc">Menor valor</option>
               <option value="desc">Maior valor</option>
+              <option value="alpha">A-Z</option>
             </select>
           </div>
         </div>
@@ -123,7 +139,10 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
             <button
               key={cat}
               type="button"
-              onClick={() => setCategory(cat)}
+              onClick={() => {
+                setCategory(cat);
+                setPage(1);
+              }}
               className={`rounded-full border px-4 py-2 text-sm transition ${
                 category === cat ? "border-black bg-black text-white" : "border-[var(--color-border)] bg-white/85"
               }`}
@@ -135,7 +154,7 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
       </div>
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {filtered.map((gift) => (
+        {visibleItems.map((gift) => (
           <Card key={gift.id} className="group overflow-hidden border-white/80 bg-white/85 p-0 shadow-[0_25px_50px_-35px_rgba(0,0,0,0.5)] transition duration-300 hover:-translate-y-1">
             <div className="relative overflow-hidden">
               <SmartImage
@@ -179,6 +198,18 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
           Nenhum presente encontrado com esses filtros.
         </Card>
       ) : null}
+      {filtered.length > visibleItems.length ? (
+        <div className="flex justify-center">
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-full px-8"
+            onClick={() => setPage((old) => old + 1)}
+          >
+            Carregar mais presentes
+          </Button>
+        </div>
+      ) : null}
 
       {typeof document !== "undefined"
         ? createPortal(
@@ -201,7 +232,7 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
                   >
                     <h3 className="mb-1 text-2xl">Finalizar presente</h3>
                     <p className="mb-4 text-sm text-[var(--color-muted)]">
-                      {selected.title} {" Â· "} {formatBRLFromCents(selected.priceCents)}
+                      {selected.title} {" - "} {formatBRLFromCents(selected.priceCents)}
                     </p>
                     <form className="space-y-3" onSubmit={checkout}>
                       <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" />

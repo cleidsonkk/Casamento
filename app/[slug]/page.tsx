@@ -9,49 +9,26 @@ import { formatBRLFromCents } from "@/lib/currency";
 import { getTemplateTheme } from "@/lib/template-theme";
 import { SmartImage } from "@/components/public/smart-image";
 import { AnimatedSection } from "@/components/public/animated-section";
+import { PublicStickyNav } from "@/components/public/public-sticky-nav";
+import { RsvpModalTrigger } from "@/components/public/rsvp-modal-trigger";
 
 function formatEventDate(date: Date | null | undefined) {
   if (!date) return "12.12.2026";
   return new Intl.DateTimeFormat("pt-BR").format(date).replaceAll("/", ".");
 }
 
-function buildNameLines(rawTitle: string) {
-  const clean = rawTitle.replace(/\s+/g, " ").trim();
-  if (!clean) return ["Noivos"];
+function splitLines(content?: string | null) {
+  if (!content) return [];
+  return content
+    .split(/\r?\n|\|/g)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
 
-  const byMainDelimiters = clean.split(/\s*(?:\+|&|\be\b)\s*/i).filter(Boolean);
-  if (byMainDelimiters.length >= 2) {
-    const [first, second] = byMainDelimiters.map((item) => item.trim()).filter(Boolean);
-    const compact = `${first} & ${second}`;
-    if (compact.length <= 24) {
-      return [compact];
-    }
-
-    const splitLongName = (name: string) => {
-      const words = name.split(" ");
-      const lines: string[] = [];
-      let current = "";
-      const maxChars = 16;
-      for (const word of words) {
-        const next = current ? `${current} ${word}` : word;
-        if (next.length > maxChars && current) {
-          lines.push(current);
-          current = word;
-        } else {
-          current = next;
-        }
-      }
-      if (current) lines.push(current);
-      return lines;
-    };
-
-    return [...splitLongName(first), "&", ...splitLongName(second)].slice(0, 6);
-  }
-
-  const words = clean.split(" ");
+function splitLongName(name: string, maxChars: number) {
+  const words = name.split(" ");
   const lines: string[] = [];
   let current = "";
-  const maxChars = 14;
   for (const word of words) {
     const next = current ? `${current} ${word}` : word;
     if (next.length > maxChars && current) {
@@ -62,7 +39,51 @@ function buildNameLines(rawTitle: string) {
     }
   }
   if (current) lines.push(current);
-  return lines.slice(0, 4);
+  return lines;
+}
+
+function buildNameLines(rawTitle: string) {
+  const clean = rawTitle.replace(/\s+/g, " ").trim();
+  if (!clean) return ["Noivos"];
+
+  const byMainDelimiters = clean.split(/\s*(?:\+|&|\be\b)\s*/i).filter(Boolean);
+  if (byMainDelimiters.length >= 2) {
+    const [first, second] = byMainDelimiters.map((item) => item.trim()).filter(Boolean);
+    const compact = `${first} & ${second}`;
+    if (compact.length <= 24) return [compact];
+    return [...splitLongName(first, 16), "&", ...splitLongName(second, 16)].slice(0, 6);
+  }
+
+  return splitLongName(clean, 14).slice(0, 4);
+}
+
+function HeroMedia({ heroVideoUrl, heroImageUrl, title }: { heroVideoUrl: string; heroImageUrl: string; title: string }) {
+  if (heroVideoUrl) {
+    return (
+      <>
+        <video
+          className="absolute inset-0 h-full w-full object-cover blur-[1.5px] scale-[1.03] opacity-45"
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster={heroImageUrl}
+        >
+          <source src={heroVideoUrl} />
+        </video>
+        <video className="h-full w-full object-cover" autoPlay muted loop playsInline poster={heroImageUrl}>
+          <source src={heroVideoUrl} />
+        </video>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <SmartImage src={heroImageUrl} alt={title} className="absolute inset-0 h-full w-full object-cover blur-[1.5px] scale-[1.03] opacity-45" loading="eager" />
+      <SmartImage src={heroImageUrl} alt={title} className="h-full w-full object-contain md:object-cover" loading="eager" />
+    </>
+  );
 }
 
 export default async function WeddingPublicPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -71,8 +92,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
     where: { slug },
     include: {
       wedding: { include: { template: true, sections: true, gallery: { orderBy: { order: "asc" } } } },
-      gifts: { where: { active: true }, include: { catalogItem: true }, take: 6, orderBy: { updatedAt: "desc" } },
-      pixSetting: true,
+      gifts: { where: { active: true }, include: { catalogItem: true }, take: 8, orderBy: { updatedAt: "desc" } },
       guests: true,
       rsvps: true,
     },
@@ -86,9 +106,13 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
     couple.wedding.sections.find((section) => section.type === "HERO_IMAGE")?.content ||
     couple.wedding.gallery[0]?.imageUrl ||
     theme.heroImage;
-  const galleryUrls =
-    couple.wedding.gallery.map((item) => item.imageUrl).filter(Boolean) ||
-    [];
+  const heroVideoUrl = couple.wedding.sections.find((section) => section.type === "HERO_VIDEO")?.content?.trim() || "";
+  const scheduleItems = splitLines(couple.wedding.sections.find((section) => section.type === "EVENT_SCHEDULE")?.content);
+  const weddingParty = splitLines(couple.wedding.sections.find((section) => section.type === "WEDDING_PARTY")?.content);
+  const dressCode = couple.wedding.sections.find((section) => section.type === "DRESS_CODE")?.content?.trim() || "Traje esporte fino.";
+  const mapLink = couple.wedding.sections.find((section) => section.type === "MAP_LINK")?.content?.trim() || "";
+  const galleryUrls = couple.wedding.gallery.map((item) => item.imageUrl).filter(Boolean);
+
   const nameLines = buildNameLines(couple.wedding.title);
   const longestLine = Math.max(...nameLines.map((line) => line.length), 0);
   const nameSizeClass =
@@ -97,15 +121,13 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
       : nameLines.length >= 4
         ? "text-[clamp(1.85rem,3.8vw,3.45rem)]"
         : nameLines.length >= 3
-        ? "text-[clamp(2.2rem,4.5vw,4.5rem)]"
-        : "text-[clamp(2.6rem,5.2vw,5.8rem)]";
+          ? "text-[clamp(2.2rem,4.5vw,4.5rem)]"
+          : "text-[clamp(2.6rem,5.2vw,5.8rem)]";
   const rootStyle: CSSProperties = { "--font-heading": theme.headingFont } as CSSProperties;
 
   const heroPanel = (
     <div className={`relative w-full overflow-visible rounded-[2rem] border p-5 text-center shadow-[0_26px_60px_-36px_rgba(0,0,0,.42)] md:p-8 ${theme.heroCardClass}`}>
-      <p className={`mx-auto inline-flex rounded-full border px-6 py-1 text-xs tracking-[0.22em] ${theme.heroBadgeClass}`}>
-        WEDDING DAY
-      </p>
+      <p className={`mx-auto inline-flex rounded-full border px-6 py-1 text-xs tracking-[0.22em] ${theme.heroBadgeClass}`}>WEDDING DAY</p>
       <div className={`mx-auto mt-4 h-px w-24 bg-gradient-to-r ${theme.heroDividerClass}`} />
       <h1
         className={`mt-4 px-1 font-semibold leading-[0.95] tracking-[-0.01em] ${nameSizeClass}`}
@@ -119,10 +141,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
         }}
       >
         {nameLines.map((line) => (
-          <span
-            key={line}
-            className={`block break-words ${line === "&" ? "my-1 text-[0.58em] opacity-95" : ""}`}
-          >
+          <span key={line} className={`block break-words ${line === "&" ? "my-1 text-[0.58em] opacity-95" : ""}`}>
             {line}
           </span>
         ))}
@@ -151,55 +170,53 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
 
   return (
     <main className={`min-h-screen ${theme.shellClass}`} style={rootStyle}>
+      <PublicStickyNav
+        slug={slug}
+        items={[
+          { id: "hero", label: "Inicio" },
+          { id: "historia", label: "Historia" },
+          { id: "cronograma", label: "Cronograma" },
+          { id: "presentes", label: "Presentes" },
+          { id: "rsvp", label: "RSVP" },
+        ]}
+      />
+
       <div className="mx-auto max-w-7xl px-4 py-4 md:px-6 md:py-6">
         <div className={`overflow-hidden rounded-[2rem] border shadow-[0_40px_80px_-50px_rgba(0,0,0,0.45)] ${theme.frameClass}`}>
-          <header className={`border-b px-4 py-4 md:px-8 ${theme.navClass}`}>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <nav className="flex flex-wrap items-center gap-5 text-sm md:gap-8 md:text-base">
-                <a href="#historia" className="border-b border-current pb-1">Historia</a>
-                <a href="#presentes">Lista de Presentes</a>
-                <a href={`/${slug}/rsvp`}>Confirmacao de Presenca</a>
-              </nav>
-              <Link href={`/${slug}/rsvp`}>
-                <Button variant="outline" className="px-6">
-                  Confirmar Presenca
-                </Button>
+          <header className={`border-b px-4 py-3 md:px-8 ${theme.navClass}`}>
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-xs tracking-[0.2em] md:text-sm">SITE OFICIAL DOS NOIVOS</p>
+              <Link href={`/${slug}/presentes`}>
+                <Button variant="outline" className="px-5">Ver presentes</Button>
               </Link>
             </div>
           </header>
 
-          <AnimatedSection className="p-3 md:p-6">
+          <AnimatedSection id="hero" className="p-3 md:p-6">
             {theme.heroLayout === "overlay" ? (
               <div className={`relative overflow-hidden rounded-3xl border shadow-[0_30px_80px_-40px_rgba(0,0,0,.45)] ${theme.heroCardClass}`}>
                 <div className="relative min-h-[34rem] md:min-h-[42rem]">
-                  <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="absolute inset-0 h-full w-full object-cover blur-[1.5px] scale-[1.03] opacity-45" loading="eager" />
-                  <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="h-full w-full object-contain md:object-cover" loading="eager" />
+                  <HeroMedia heroVideoUrl={heroVideoUrl} heroImageUrl={heroImageUrl} title={couple.wedding.title} />
                   <div className={`absolute inset-0 ${theme.heroOverlay}`} />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,.08),transparent_56%)]" />
-                  <div className="absolute inset-x-3 bottom-3 md:inset-x-6 md:bottom-6">
-                    {heroPanel}
-                  </div>
+                  <div className="absolute inset-x-3 bottom-3 md:inset-x-6 md:bottom-6">{heroPanel}</div>
                 </div>
               </div>
             ) : theme.heroLayout === "editorial" ? (
               <div className={`overflow-hidden rounded-3xl border shadow-[0_30px_80px_-40px_rgba(0,0,0,.45)] ${theme.heroCardClass}`}>
                 <div className="grid lg:grid-cols-12">
                   <div className="relative min-h-[20rem] lg:col-span-7">
-                    <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="absolute inset-0 h-full w-full object-cover blur-[1.5px] scale-[1.03] opacity-45" loading="eager" />
-                    <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="h-full w-full object-contain md:object-cover" loading="eager" />
+                    <HeroMedia heroVideoUrl={heroVideoUrl} heroImageUrl={heroImageUrl} title={couple.wedding.title} />
                     <div className={`absolute inset-0 ${theme.heroOverlay}`} />
                   </div>
-                  <div className={`flex items-center p-4 md:p-8 lg:col-span-5 ${theme.heroRightBgClass}`}>
-                    {heroPanel}
-                  </div>
+                  <div className={`flex items-center p-4 md:p-8 lg:col-span-5 ${theme.heroRightBgClass}`}>{heroPanel}</div>
                 </div>
               </div>
             ) : (
               <div className={`overflow-hidden rounded-3xl border shadow-[0_30px_80px_-40px_rgba(0,0,0,.45)] ${theme.heroCardClass}`}>
                 <div className="grid lg:grid-cols-12">
                   <div className="relative min-h-[21rem] lg:col-span-7">
-                    <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="absolute inset-0 h-full w-full object-cover blur-[1.5px] scale-[1.03] opacity-45" loading="eager" />
-                    <SmartImage src={heroImageUrl} alt={couple.wedding.title} className="h-full w-full object-contain md:object-cover" loading="eager" />
+                    <HeroMedia heroVideoUrl={heroVideoUrl} heroImageUrl={heroImageUrl} title={couple.wedding.title} />
                     <div className={`absolute inset-0 ${theme.heroOverlay}`} />
                     <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,11,11,.35),transparent_45%,rgba(255,255,255,.06))]" />
                   </div>
@@ -258,9 +275,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                   </div>
                   <div className={`mt-5 h-px w-full bg-gradient-to-r ${theme.heroDividerClass}`} />
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <Link href={`/${slug}/rsvp`}>
-                      <Button variant="outline" className="rounded-xl">Confirmar presenca</Button>
-                    </Link>
+                    <RsvpModalTrigger slug={slug} />
                     <Link href={`/${slug}/presentes`}>
                       <Button className={`rounded-xl ${theme.ctaClass}`}>Ver lista de presentes</Button>
                     </Link>
@@ -274,50 +289,78 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
             <div className="space-y-4 lg:col-span-8">
               <AnimatedSection>
                 <Card id="historia" className={`grid gap-4 p-4 md:grid-cols-12 md:p-6 ${theme.contentCardClass}`}>
-                <SmartImage
-                  src={galleryUrls[0] || "https://images.unsplash.com/photo-1529636798458-92182e662485?w=1200&q=80&auto=format&fit=crop"}
-                  alt="Historia do casal"
-                  className="h-56 w-full rounded-2xl object-cover md:col-span-5 md:h-full"
-                />
-                <div className="md:col-span-7">
-                  <h2 className={`text-4xl ${theme.titleClass}`}>Historia do Casal</h2>
-                  <p className={`mt-3 ${theme.mutedClass}`}>
-                    {couple.wedding.story ?? "Uma historia de amor, parceria e celebracao com as pessoas mais importantes."}
-                  </p>
-                  <Link href={`/${slug}/rsvp`}>
-                    <Button variant="outline" className="mt-4">Nossa Historia</Button>
-                  </Link>
-                </div>
-              </Card>
+                  <SmartImage
+                    src={galleryUrls[0] || "https://images.unsplash.com/photo-1529636798458-92182e662485?w=1200&q=80&auto=format&fit=crop"}
+                    alt="Historia do casal"
+                    className="h-56 w-full rounded-2xl object-cover md:col-span-5 md:h-full"
+                  />
+                  <div className="md:col-span-7">
+                    <h2 className={`text-4xl ${theme.titleClass}`}>Historia do Casal</h2>
+                    <p className={`mt-3 ${theme.mutedClass}`}>
+                      {couple.wedding.story ?? "Uma historia de amor, parceria e celebracao com as pessoas mais importantes."}
+                    </p>
+                    <RsvpModalTrigger slug={slug} />
+                  </div>
+                </Card>
               </AnimatedSection>
 
               <AnimatedSection>
                 <Card className={`grid gap-4 p-4 md:grid-cols-2 md:p-6 ${theme.contentCardClass}`}>
-                <div>
-                  <h3 className={`text-3xl ${theme.titleClass}`}>Album de Fotos</h3>
-                  <p className={`mt-2 text-sm ${theme.mutedClass}`}>Momentos que marcaram nossa historia.</p>
-                  <div className="mt-4 grid grid-cols-3 gap-2">
-                    {(galleryUrls.length ? galleryUrls : [
-                      "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1200&q=80&auto=format&fit=crop",
-                      "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=1200&q=80&auto=format&fit=crop",
-                      "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=1200&q=80&auto=format&fit=crop",
-                    ]).slice(0, 6).map((url) => (
-                      <SmartImage key={url} src={url} alt="Foto do casal" className="aspect-[4/3] w-full rounded-lg object-cover" />
-                    ))}
+                  <div>
+                    <h3 className={`text-3xl ${theme.titleClass}`}>Album de Fotos</h3>
+                    <p className={`mt-2 text-sm ${theme.mutedClass}`}>Momentos que marcaram nossa historia.</p>
+                    <div className="mt-4 grid grid-cols-3 gap-2">
+                      {(galleryUrls.length
+                        ? galleryUrls
+                        : [
+                            "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1200&q=80&auto=format&fit=crop",
+                            "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=1200&q=80&auto=format&fit=crop",
+                            "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=1200&q=80&auto=format&fit=crop",
+                          ])
+                        .slice(0, 6)
+                        .map((url) => (
+                          <SmartImage key={url} src={url} alt="Foto do casal" className="aspect-[4/3] w-full rounded-lg object-cover" />
+                        ))}
+                    </div>
                   </div>
-                </div>
-                <div className={`rounded-2xl border p-4 ${theme.statBoxClass}`}>
-                  <h3 className={`text-3xl ${theme.titleClass}`}>Confirmacao de Presenca</h3>
-                  <p className={`mt-2 text-sm ${theme.mutedClass}`}>
-                    Sua presenca torna nosso dia ainda mais especial. Confirme em menos de 1 minuto.
-                  </p>
-                  <div className="mt-5">
-                    <Link href={`/${slug}/rsvp`}>
-                      <Button className="w-full md:w-auto">Confirmar Presenca</Button>
-                    </Link>
+                  <div className={`rounded-2xl border p-4 ${theme.statBoxClass}`}>
+                    <h3 className={`text-3xl ${theme.titleClass}`}>Confirmacao de Presenca</h3>
+                    <p className={`mt-2 text-sm ${theme.mutedClass}`}>
+                      Sua presenca torna nosso dia ainda mais especial. Confirme em menos de 1 minuto.
+                    </p>
+                    <div className="mt-5">
+                      <RsvpModalTrigger slug={slug} />
+                    </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              </AnimatedSection>
+
+              <AnimatedSection id="cronograma">
+                <Card className={`grid gap-4 p-4 md:grid-cols-2 md:p-6 ${theme.contentCardClass}`}>
+                  <div className={`rounded-2xl border p-4 ${theme.statBoxClass}`}>
+                    <p className={`text-xs tracking-[0.16em] ${theme.mutedClass}`}>CRONOGRAMA DO DIA</p>
+                    <h3 className={`mt-2 text-3xl ${theme.titleClass}`}>Planejamento da celebracao</h3>
+                    <div className="mt-3 space-y-2">
+                      {(scheduleItems.length ? scheduleItems : ["16:00 - Cerimonia", "18:00 - Recepcao", "22:30 - Brinde especial"]).map((item) => (
+                        <div key={item} className="rounded-xl border bg-white/85 px-3 py-2 text-sm">
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className={`rounded-2xl border p-4 ${theme.statBoxClass}`}>
+                    <p className={`text-xs tracking-[0.16em] ${theme.mutedClass}`}>DRESS CODE</p>
+                    <h3 className={`mt-2 text-3xl ${theme.titleClass}`}>Como se vestir</h3>
+                    <p className={`mt-2 text-sm ${theme.mutedClass}`}>{dressCode}</p>
+                    <div className={`mt-4 h-px w-full bg-gradient-to-r ${theme.heroDividerClass}`} />
+                    <p className={`mt-4 text-xs tracking-[0.16em] ${theme.mutedClass}`}>PADRINHOS E MADRINHAS</p>
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      {(weddingParty.length ? weddingParty : ["Ana", "Bruno", "Carla", "Renan"]).slice(0, 8).map((name) => (
+                        <div key={name} className="rounded-xl border bg-white/85 px-3 py-2 text-sm">{name}</div>
+                      ))}
+                    </div>
+                  </div>
+                </Card>
               </AnimatedSection>
             </div>
 
@@ -326,8 +369,8 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                 <h3 className={`text-3xl ${theme.titleClass}`}>Lista de Presentes</h3>
                 <p className={`mb-4 mt-1 text-sm ${theme.mutedClass}`}>Contribua com um presente via Pix.</p>
                 <div className="space-y-3">
-                  {couple.gifts.slice(0, 4).map((gift) => (
-                    <div key={gift.id} className={`rounded-xl border p-2 ${theme.statBoxClass}`}>
+                  {couple.gifts.slice(0, 5).map((gift) => (
+                    <div key={gift.id} className={`rounded-xl border p-2 shadow-[0_18px_35px_-26px_rgba(0,0,0,.45)] transition hover:-translate-y-0.5 ${theme.statBoxClass}`}>
                       <SmartImage
                         src={getGiftImageUrl(gift.catalogItem.imageUrl, gift.catalogItem.title, gift.catalogItem.category)}
                         alt={gift.catalogItem.title}
@@ -374,28 +417,49 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                     <p className={`text-[11px] tracking-[0.14em] ${theme.mutedClass}`}>CONVIDADOS</p>
                   </div>
                 </div>
-                <p className={`mt-3 text-sm ${theme.mutedClass}`}>
-                  Atualizacoes em tempo real no site dos noivos.
-                </p>
+                <p className={`mt-3 text-sm ${theme.mutedClass}`}>Atualizacoes em tempo real no site dos noivos.</p>
               </div>
 
               <div className={`rounded-2xl border p-4 ${theme.statBoxClass}`}>
                 <p className={`text-xs tracking-[0.16em] ${theme.mutedClass}`}>PARTICIPE</p>
-                <h3 className={`mt-2 text-3xl ${theme.titleClass}`}>Faça parte desse momento</h3>
+                <h3 className={`mt-2 text-3xl ${theme.titleClass}`}>Faca parte desse momento</h3>
                 <p className={`mt-2 text-sm ${theme.mutedClass}`}>
                   Confirme sua presenca e escolha um presente com pagamento Pix em poucos passos.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <Link href={`/${slug}/rsvp`}>
-                    <Button className="rounded-xl">Confirmar presenca</Button>
-                  </Link>
+                  <RsvpModalTrigger slug={slug} />
                   <Link href={`/${slug}/presentes`}>
                     <Button variant="outline" className="rounded-xl">Ver presentes</Button>
                   </Link>
+                  {mapLink ? (
+                    <a href={mapLink} target="_blank" rel="noreferrer">
+                      <Button variant="outline" className="rounded-xl">Abrir mapa</Button>
+                    </a>
+                  ) : null}
                 </div>
               </div>
             </Card>
           </AnimatedSection>
+
+          <footer id="rsvp" className="border-t px-4 py-8 md:px-8 md:py-10">
+            <div className="grid gap-4 md:grid-cols-3">
+              <Card className={`rounded-2xl border p-4 ${theme.contentCardClass}`}>
+                <p className={`text-xs tracking-[0.16em] ${theme.mutedClass}`}>SEGURANCA</p>
+                <h4 className={`mt-2 text-2xl ${theme.titleClass}`}>Pix com confianca</h4>
+                <p className={`mt-2 text-sm ${theme.mutedClass}`}>Pagamento com chave oficial cadastrada pelos noivos.</p>
+              </Card>
+              <Card className={`rounded-2xl border p-4 ${theme.contentCardClass}`}>
+                <p className={`text-xs tracking-[0.16em] ${theme.mutedClass}`}>CONFIRMACAO RAPIDA</p>
+                <h4 className={`mt-2 text-2xl ${theme.titleClass}`}>RSVP em 1 minuto</h4>
+                <p className={`mt-2 text-sm ${theme.mutedClass}`}>Fluxo simples com resposta imediata e compartilhamento.</p>
+              </Card>
+              <Card className={`rounded-2xl border p-4 ${theme.contentCardClass}`}>
+                <p className={`text-xs tracking-[0.16em] ${theme.mutedClass}`}>SITE OFICIAL</p>
+                <h4 className={`mt-2 text-2xl ${theme.titleClass}`}>{couple.wedding.title}</h4>
+                <p className={`mt-2 text-sm ${theme.mutedClass}`}>Obrigado por fazer parte desse momento especial.</p>
+              </Card>
+            </div>
+          </footer>
         </div>
       </div>
     </main>

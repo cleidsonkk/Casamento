@@ -70,6 +70,19 @@ export function RsvpForm({ slug }: { slug: string }) {
 
   return (
     <div className="space-y-4">
+      <div className="rounded-2xl border bg-white/75 p-3">
+        <div className="mb-2 flex items-center justify-between text-xs tracking-[0.14em] text-[var(--color-muted)]">
+          <span>FLUXO RSVP PREMIUM</span>
+          <span>{confirmed ? "100%" : "70%"}</span>
+        </div>
+        <div className="h-1.5 overflow-hidden rounded-full bg-black/10">
+          <div
+            className="h-full rounded-full bg-[linear-gradient(90deg,#8b5e2a,#d7b071)] transition-all duration-300"
+            style={{ width: confirmed ? "100%" : "70%" }}
+          />
+        </div>
+      </div>
+
       <form className="space-y-3" onSubmit={handleSubmit}>
         <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" />
         <Input name="name" placeholder="Nome completo" required className="h-12 rounded-2xl bg-white/90" />
@@ -119,7 +132,7 @@ export function RsvpForm({ slug }: { slug: string }) {
             exit={{ opacity: 0, y: 12 }}
             className="rounded-2xl border border-[#e7dcc7] bg-[linear-gradient(145deg,#fffefb,#f6efe3)] p-4"
           >
-            <p className="text-xs tracking-[0.14em] text-[var(--color-muted)]">CONFIRMACAO ENVIADA</p>
+            <p className="text-xs tracking-[0.14em] text-[var(--color-muted)]">CONFIRMACAO ENVIADA COM SUCESSO</p>
             <h3 className="mt-1 text-xl">Resumo do RSVP</h3>
             <div className="mt-3 grid gap-2 text-sm sm:grid-cols-3">
               <div className="rounded-xl border bg-white/80 p-3">

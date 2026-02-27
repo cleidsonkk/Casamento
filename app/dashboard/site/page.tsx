@@ -68,6 +68,11 @@ export default function DashboardSitePage() {
   const [coupleSlug, setCoupleSlug] = useState("");
   const [shareBase, setShareBase] = useState("");
   const [heroImageUrl, setHeroImageUrl] = useState("");
+  const [heroVideoUrl, setHeroVideoUrl] = useState("");
+  const [eventSchedule, setEventSchedule] = useState("");
+  const [dressCode, setDressCode] = useState("");
+  const [mapLink, setMapLink] = useState("");
+  const [weddingParty, setWeddingParty] = useState("");
   const [galleryUrls, setGalleryUrls] = useState<string[]>([]);
   const [uploadingHero, setUploadingHero] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
@@ -91,6 +96,11 @@ export default function DashboardSitePage() {
         setTemplates(nextTemplates);
         setSelectedTemplateId(nextWedding.templateId ?? "");
         setHeroImageUrl(data?.heroImageUrl ?? "");
+        setHeroVideoUrl(data?.heroVideoUrl ?? "");
+        setEventSchedule(data?.eventSchedule ?? "");
+        setDressCode(data?.dressCode ?? "");
+        setMapLink(data?.mapLink ?? "");
+        setWeddingParty(data?.weddingParty ?? "");
         setGalleryUrls(nextGallery.map((photo) => photo.imageUrl));
         const initial = nextTemplates.find((template: Template) => template.id === nextWedding.templateId);
         applyTemplatePreview(initial?.tokensJson);
@@ -155,6 +165,11 @@ export default function DashboardSitePage() {
       rsvpRestricted: formData.get("rsvpRestricted") === "on",
       templateId: selectedTemplateId,
       heroImageUrl,
+      heroVideoUrl,
+      eventSchedule,
+      dressCode,
+      mapLink,
+      weddingParty,
       galleryUrls,
     };
 
@@ -256,6 +271,35 @@ export default function DashboardSitePage() {
             </label>
           </div>
         </div>
+
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Input
+            value={heroVideoUrl}
+            onChange={(e) => setHeroVideoUrl(e.target.value)}
+            placeholder="Video do hero (URL mp4/webm opcional)"
+          />
+          <Input
+            value={mapLink}
+            onChange={(e) => setMapLink(e.target.value)}
+            placeholder="Link do mapa (Google Maps)"
+          />
+        </div>
+
+        <Textarea
+          value={eventSchedule}
+          onChange={(e) => setEventSchedule(e.target.value)}
+          placeholder="Cronograma (uma linha por item, ex: 16:00 - Cerimonia)"
+        />
+        <Textarea
+          value={dressCode}
+          onChange={(e) => setDressCode(e.target.value)}
+          placeholder="Dress code"
+        />
+        <Textarea
+          value={weddingParty}
+          onChange={(e) => setWeddingParty(e.target.value)}
+          placeholder="Padrinhos e madrinhas (uma linha por nome)"
+        />
 
         <div className="space-y-2 rounded-2xl border border-[var(--color-border)] bg-white/70 p-3">
           <p className="text-sm font-medium">Template (aplica instantaneamente)</p>
