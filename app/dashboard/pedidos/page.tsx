@@ -34,7 +34,7 @@ export default function OrdersDashboardPage() {
     <Card className="border-white/80 bg-white/80 p-4 shadow-[0_24px_55px_-40px_rgba(0,0,0,.45)] backdrop-blur md:p-5">
       <h1 className="mb-4 text-3xl">Pedidos</h1>
 
-      <div className="space-y-3 md:hidden">
+      <div className="space-y-3 lg:hidden">
         {orders.map((o) => (
           <div key={o.id} className="rounded-xl border bg-white/90 p-3">
             <p className="text-xs text-[var(--color-muted)]">Convidado</p>
@@ -53,7 +53,7 @@ export default function OrdersDashboardPage() {
         ))}
       </div>
 
-      <div className="hidden space-y-2 md:block">
+      <div className="hidden space-y-2 lg:block">
         {orders.map((o) => (
           <div key={o.id} className="grid grid-cols-12 items-center gap-2 rounded-xl border bg-white/90 p-3 text-sm">
             <span className="col-span-3">{o.giverName}</span>

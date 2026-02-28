@@ -16,14 +16,13 @@ export default function AdminCatalogPage() {
       <p className="mb-3 text-sm text-[var(--color-muted)]">{items.length} itens</p>
       <div className="space-y-2">
         {items.map((i) => (
-          <div key={i.id} className="grid grid-cols-3 rounded-xl border p-2 text-sm">
-            <span>{i.title}</span>
-            <span>{i.category}</span>
-            <span>{i.imageStyle}</span>
+          <div key={i.id} className="rounded-xl border p-3 text-sm md:grid md:grid-cols-3 md:gap-2 md:p-2">
+            <p className="break-words">{i.title}</p>
+            <p className="break-words text-[var(--color-muted)] md:text-inherit">{i.category}</p>
+            <p className="break-words text-[var(--color-muted)] md:text-inherit">{i.imageStyle}</p>
           </div>
         ))}
       </div>
     </Card>
   );
 }
-

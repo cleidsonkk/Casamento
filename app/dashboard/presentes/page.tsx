@@ -128,7 +128,7 @@ export default function GiftsDashboardPage() {
         {pagedRows.map((row) => {
           const idx = rows.findIndex((item) => item.catalogItemId === row.catalogItemId);
           return (
-            <div key={row.catalogItemId} className="grid grid-cols-1 items-center gap-2 rounded-xl border bg-white/90 p-3 text-sm md:grid-cols-12">
+            <div key={row.catalogItemId} className="grid grid-cols-1 items-center gap-2 rounded-xl border bg-white/90 p-3 text-sm lg:grid-cols-12">
               <label className="md:col-span-1">
                 <input
                   type="checkbox"
@@ -137,10 +137,10 @@ export default function GiftsDashboardPage() {
                     setRows((old) => old.map((r, i) => (i === idx ? { ...r, active: e.target.checked } : r)))
                   }
                 />
-                <span className="ml-2 md:hidden">Ativar</span>
+                <span className="ml-2 lg:hidden">Ativar</span>
               </label>
 
-              <div className="md:col-span-5 flex items-center gap-2">
+              <div className="flex items-center gap-2 lg:col-span-5">
                 <SmartImage
                   src={getGiftImageUrl(row.imageUrl, row.title, row.category)}
                   alt={row.title}
@@ -152,7 +152,7 @@ export default function GiftsDashboardPage() {
                 </div>
               </div>
 
-              <div className="md:col-span-3 flex items-center rounded-lg border bg-white px-2">
+              <div className="flex items-center rounded-lg border bg-white px-2 lg:col-span-3">
                 <span className="mr-1 text-[var(--color-muted)]">R$</span>
                 <input
                   className="w-full py-1 outline-none"
@@ -170,7 +170,7 @@ export default function GiftsDashboardPage() {
               </div>
 
               <select
-                className="md:col-span-3 rounded-lg border px-2 py-2"
+                className="rounded-lg border px-2 py-2 lg:col-span-3"
                 value={row.giftMode}
                 onChange={(e) =>
                   setRows((old) =>

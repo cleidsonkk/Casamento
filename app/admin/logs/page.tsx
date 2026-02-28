@@ -15,14 +15,13 @@ export default function AdminLogsPage() {
       <h1 className="mb-3 text-3xl">Audit Logs</h1>
       <div className="space-y-2">
         {logs.map((l) => (
-          <div key={l.id} className="grid grid-cols-3 rounded-xl border p-2 text-sm">
-            <span>{l.action}</span>
-            <span>{l.entity}</span>
-            <span>{new Date(l.createdAt).toLocaleString("pt-BR")}</span>
+          <div key={l.id} className="rounded-xl border p-3 text-sm md:grid md:grid-cols-3 md:gap-2 md:p-2">
+            <p className="break-words">{l.action}</p>
+            <p className="break-words text-[var(--color-muted)] md:text-inherit">{l.entity}</p>
+            <p className="text-xs text-[var(--color-muted)] md:text-sm md:text-inherit">{new Date(l.createdAt).toLocaleString("pt-BR")}</p>
           </div>
         ))}
       </div>
     </Card>
   );
 }
-

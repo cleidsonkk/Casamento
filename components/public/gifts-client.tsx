@@ -28,7 +28,7 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
   const PAGE_SIZE = 12;
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
-  const [sort, setSort] = useState<"asc" | "desc" | "alpha">("asc");
+  const [sort, setSort] = useState<"asc" | "desc" | "alpha">("desc");
   const [selected, setSelected] = useState<Gift | null>(null);
   const [page, setPage] = useState(1);
   const nameInputRef = useRef<HTMLInputElement | null>(null);
@@ -93,7 +93,7 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
         <div className="grid gap-3 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <Input
-              placeholder="Buscar presente por nome, categoria ou descricao"
+              placeholder="Buscar presente por nome, categoria ou descrição"
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value);
@@ -127,8 +127,8 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
                 setPage(1);
               }}
             >
-              <option value="asc">Menor valor</option>
               <option value="desc">Maior valor</option>
+              <option value="asc">Menor valor</option>
               <option value="alpha">A-Z</option>
             </select>
           </div>
@@ -174,15 +174,15 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
               <div className="flex items-center justify-between">
                 <strong className="text-2xl tracking-tight">{formatBRLFromCents(gift.priceCents)}</strong>
                 <Badge>
-                  {gift.state === "disponivel"
-                    ? "Disponivel"
+                  {gift.state === "disponível"
+                    ? "Disponível"
                     : gift.state === "reservado"
                       ? `Reservado (${gift.reservations})`
-                      : "Indisponivel"}
+                      : "Indisponível"}
                 </Badge>
               </div>
               <Button
-                disabled={gift.state !== "disponivel"}
+                disabled={gift.state !== "disponível"}
                 className="h-11 w-full rounded-xl"
                 onClick={() => setSelected(gift)}
               >

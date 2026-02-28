@@ -243,7 +243,7 @@ export default function DashboardSitePage() {
 
           <div className="rounded-2xl border border-[var(--color-border)] bg-white/75 p-3">
             <p className="mb-2 text-sm font-medium">Album do casal</p>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {galleryUrls.slice(0, 6).map((url, index) => (
                 <div key={`${url}-${index}`} className="group relative overflow-hidden rounded-lg border">
                   <SmartImage src={url} alt={`Foto ${index + 1}`} className="h-20 w-full object-cover" />

@@ -15,7 +15,7 @@ export default function RsvpDashboardPage() {
     <Card className="border-white/80 bg-white/80 p-4 shadow-[0_24px_55px_-40px_rgba(0,0,0,.45)] backdrop-blur md:p-5">
       <h1 className="mb-4 text-3xl">RSVPs</h1>
 
-      <div className="space-y-3 md:hidden">
+      <div className="space-y-3 lg:hidden">
         {items.map((item) => (
           <div key={item.id} className="rounded-xl border bg-white/90 p-3">
             <p className="font-medium">{item.guestName}</p>
@@ -37,7 +37,7 @@ export default function RsvpDashboardPage() {
         ))}
       </div>
 
-      <div className="hidden space-y-2 md:block">
+      <div className="hidden space-y-2 lg:block">
         {items.map((item) => (
           <div key={item.id} className="grid grid-cols-4 rounded-xl border bg-white/90 px-3 py-2 text-sm">
             <span>{item.guestName}</span>

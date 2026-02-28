@@ -1,12 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 const statusLabel: Record<string, string> = {
   PENDING_PAYMENT: "Aguardando pagamento",
-  AWAITING_CONFIRMATION: "Aguardando confirmacao",
+  AWAITING_CONFIRMATION: "Aguardando confirmação",
   PAID: "Pagamento confirmado",
   CANCELED: "Cancelado",
   EXPIRED: "Expirado",
@@ -43,7 +44,14 @@ export function PixViewer({
             QR Pix oficial gerado com a chave cadastrada pelos noivos.
           </p>
 
-          <img src={qrPayloadDataUrl} alt="QR Code Pix" className="mx-auto h-64 w-64 rounded-2xl border bg-white p-3 md:h-80 md:w-80" />
+          <Image
+            src={qrPayloadDataUrl}
+            alt="QR Code Pix"
+            width={320}
+            height={320}
+            unoptimized
+            className="mx-auto h-64 w-64 rounded-2xl border bg-white p-3 md:h-80 md:w-80"
+          />
 
           <div className="mt-5 grid gap-2 sm:grid-cols-2">
             <Button variant="outline" className="h-11 rounded-xl" onClick={() => copy(payload, "Pix Copia e Cola")}>
@@ -55,7 +63,7 @@ export function PixViewer({
           </div>
 
           <Button className="mt-3 h-11 w-full rounded-xl" onClick={onPaid}>
-            Ja paguei
+            Já paguei
           </Button>
         </div>
       </div>
@@ -66,8 +74,8 @@ export function PixViewer({
           <h3 className="mt-2 text-2xl">Pagamento seguro</h3>
           <ol className="mt-4 space-y-3 text-sm text-[var(--color-muted)]">
             <li className="rounded-xl border bg-white/85 p-3">1. Abra seu banco e escolha Pix QR Code ou Copia e Cola.</li>
-            <li className="rounded-xl border bg-white/85 p-3">2. Faca o pagamento no valor exato do presente.</li>
-            <li className="rounded-xl border bg-white/85 p-3">3. Clique em &quot;Ja paguei&quot; para notificar os noivos.</li>
+            <li className="rounded-xl border bg-white/85 p-3">2. Faça o pagamento no valor exato do presente.</li>
+            <li className="rounded-xl border bg-white/85 p-3">3. Clique em &quot;Já paguei&quot; para notificar os noivos.</li>
           </ol>
         </div>
       </div>

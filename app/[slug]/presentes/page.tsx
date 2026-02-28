@@ -32,7 +32,7 @@ export default async function GiftsPage({ params }: { params: Promise<{ slug: st
         description: gift.catalogItem.description,
         priceCents: gift.priceCents,
         imageUrl: gift.catalogItem.imageUrl,
-        state: paidUnique ? "indisponivel" : reserved ? "reservado" : "disponivel",
+        state: paidUnique ? "indisponível" : reserved ? "reservado" : "disponível",
         reservations: reserved ? 1 : 0,
       };
     });
@@ -52,7 +52,7 @@ export default async function GiftsPage({ params }: { params: Promise<{ slug: st
               <p className={`mb-2 text-xs tracking-[0.24em] ${theme.mutedClass}`}>LISTA DE PRESENTES</p>
               <h1 className={`text-4xl leading-tight md:text-5xl ${theme.titleClass}`}>Escolha um presente com carinho</h1>
               <p className={`mt-3 max-w-2xl ${theme.mutedClass}`}>
-                Cada item ajuda a construir nosso novo lar. Pagamento por Pix com confirmacao simples e segura.
+                Cada item ajuda a construir nosso novo lar. Pagamento por Pix com confirmação simples e segura.
               </p>
             </div>
             <Link href={`/${slug}`}>

@@ -13,7 +13,7 @@ export function RsvpModalTrigger({ slug }: { slug: string }) {
   return (
     <>
       <Button type="button" onClick={() => setOpen(true)} className="rounded-xl">
-        Confirmar presenca
+        Confirmar presença
       </Button>
       {typeof document !== "undefined"
         ? createPortal(
@@ -38,7 +38,7 @@ export function RsvpModalTrigger({ slug }: { slug: string }) {
                       <div className="mb-4 flex items-center justify-between">
                         <div>
                           <p className="text-xs tracking-[0.18em] text-[var(--color-muted)]">RSVP PREMIUM</p>
-                          <h3 className="text-2xl">Confirmar presenca em 1 minuto</h3>
+                          <h3 className="text-2xl">Confirmar presença em 1 minuto</h3>
                         </div>
                         <Button type="button" variant="outline" className="rounded-full" onClick={() => setOpen(false)}>
                           Fechar
@@ -56,4 +56,3 @@ export function RsvpModalTrigger({ slug }: { slug: string }) {
     </>
   );
 }
-

@@ -11,6 +11,7 @@ import { SmartImage } from "@/components/public/smart-image";
 import { AnimatedSection } from "@/components/public/animated-section";
 import { PublicStickyNav } from "@/components/public/public-sticky-nav";
 import { RsvpModalTrigger } from "@/components/public/rsvp-modal-trigger";
+import { CountdownGrid } from "@/components/public/countdown-grid";
 
 function formatEventDate(date: Date | null | undefined) {
   if (!date) return "12.12.2026";
@@ -80,8 +81,14 @@ function HeroMedia({ heroVideoUrl, heroImageUrl, title }: { heroVideoUrl: string
 
   return (
     <>
-      <SmartImage src={heroImageUrl} alt={title} className="absolute inset-0 h-full w-full object-cover blur-[1.5px] scale-[1.03] opacity-45" loading="eager" />
-      <SmartImage src={heroImageUrl} alt={title} className="h-full w-full object-contain md:object-cover" loading="eager" />
+      <SmartImage
+        src={heroImageUrl}
+        alt={title}
+        className="absolute inset-0 h-full w-full object-cover blur-[1.5px] scale-[1.03] opacity-30"
+        loading="eager"
+        sizes="100vw"
+      />
+      <SmartImage src={heroImageUrl} alt={title} className="h-full w-full object-cover object-center" loading="eager" sizes="100vw" />
     </>
   );
 }
@@ -127,7 +134,7 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
 
   const heroPanel = (
     <div className={`relative w-full overflow-visible rounded-[2rem] border p-5 text-center shadow-[0_26px_60px_-36px_rgba(0,0,0,.42)] md:p-8 ${theme.heroCardClass}`}>
-      <p className={`mx-auto inline-flex rounded-full border px-6 py-1 text-xs tracking-[0.22em] ${theme.heroBadgeClass}`}>WEDDING DAY</p>
+      <p className={`mx-auto inline-flex rounded-full border px-6 py-1 text-xs tracking-[0.22em] ${theme.heroBadgeClass}`}>DIA DO CASAMENTO</p>
       <div className={`mx-auto mt-4 h-px w-24 bg-gradient-to-r ${theme.heroDividerClass}`} />
       <h1
         className={`mt-4 px-1 font-semibold leading-[0.95] tracking-[-0.01em] ${nameSizeClass}`}
@@ -147,18 +154,13 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
         ))}
       </h1>
       <p className={`mt-3 text-2xl font-medium tracking-[0.08em] ${theme.heroDateClass}`}>{date}</p>
-      <div className="mt-6 grid grid-cols-4 gap-2 md:gap-3">
-        {[
-          [String(Math.max(1, couple.guests.length || 42)), "DIAS"],
-          ["14", "HORAS"],
-          ["22", "MIN"],
-          ["05", "SEG"],
-        ].map(([value, label]) => (
-          <div key={label} className={`rounded-2xl border p-2 shadow-[0_10px_22px_-18px_rgba(0,0,0,.3)] md:p-3 ${theme.statBoxClass}`}>
-            <p className={`text-3xl leading-tight ${theme.titleClass}`}>{value}</p>
-            <p className={`text-[11px] tracking-[0.13em] ${theme.mutedClass}`}>{label}</p>
-          </div>
-        ))}
+      <div className="mt-6">
+        <CountdownGrid
+          targetMs={couple.wedding.eventDate?.getTime() ?? null}
+          cellClassName={theme.statBoxClass}
+          valueClassName={theme.titleClass}
+          labelClassName={theme.mutedClass}
+        />
       </div>
       <Link href={`/${slug}/presentes`}>
         <Button className={`mt-6 w-full rounded-2xl py-6 text-lg font-semibold md:w-auto md:px-14 md:whitespace-nowrap ${theme.ctaClass}`}>
@@ -173,8 +175,8 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
       <PublicStickyNav
         slug={slug}
         items={[
-          { id: "hero", label: "Inicio" },
-          { id: "historia", label: "Historia" },
+          { id: "hero", label: "Início" },
+          { id: "historia", label: "História" },
           { id: "cronograma", label: "Cronograma" },
           { id: "presentes", label: "Presentes" },
           { id: "rsvp", label: "RSVP" },
@@ -238,10 +240,10 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                   <h2 className={`mt-2 text-3xl md:text-4xl ${theme.titleClass}`}>Bem-vindos ao nosso casamento</h2>
                   <p className={`mt-3 text-sm leading-7 md:text-base ${theme.mutedClass}`}>
                     {couple.wedding.story ??
-                      "Estamos muito felizes em compartilhar este momento com voce. Sua presenca e carinho fazem toda diferenca em nosso grande dia."}
+                      "Estamos muito felizes em compartilhar este momento com você. Sua presença e carinho fazem toda a diferença em nosso grande dia."}
                   </p>
                   <div className={`mt-5 h-px w-full bg-gradient-to-r ${theme.heroDividerClass}`} />
-                  <div className="mt-4 grid grid-cols-3 gap-2">
+                  <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
                     <div className="rounded-xl border bg-white/80 p-3 text-center">
                       <p className={`text-2xl ${theme.titleClass}`}>{confirmed}</p>
                       <p className={`text-[11px] tracking-[0.14em] ${theme.mutedClass}`}>CONFIRMADOS</p>
@@ -260,18 +262,14 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                 <div className={`rounded-2xl border p-4 md:p-5 lg:col-span-5 ${theme.statBoxClass}`}>
                   <p className={`text-xs tracking-[0.2em] ${theme.mutedClass}`}>CONTAGEM REGRESSIVA</p>
                   <p className={`mt-1 text-sm ${theme.mutedClass}`}>{date}</p>
-                  <div className="mt-4 grid grid-cols-4 gap-2">
-                    {[
-                      [String(Math.max(1, couple.guests.length || 42)), "DIAS"],
-                      ["14", "HORAS"],
-                      ["22", "MIN"],
-                      ["05", "SEG"],
-                    ].map(([value, label]) => (
-                      <div key={label} className="rounded-xl border bg-white/90 p-2 text-center">
-                        <p className={`text-2xl md:text-3xl ${theme.titleClass}`}>{value}</p>
-                        <p className={`text-[10px] tracking-[0.14em] ${theme.mutedClass}`}>{label}</p>
-                      </div>
-                    ))}
+                  <div className="mt-4">
+                    <CountdownGrid
+                      targetMs={couple.wedding.eventDate?.getTime() ?? null}
+                      className="gap-2"
+                      cellClassName="rounded-xl bg-white/90 p-2 text-center"
+                      valueClassName={`text-2xl md:text-3xl ${theme.titleClass}`}
+                      labelClassName={`text-[10px] tracking-[0.14em] ${theme.mutedClass}`}
+                    />
                   </div>
                   <div className={`mt-5 h-px w-full bg-gradient-to-r ${theme.heroDividerClass}`} />
                   <div className="mt-4 flex flex-wrap gap-2">
@@ -291,13 +289,13 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                 <Card id="historia" className={`grid gap-4 p-4 md:grid-cols-12 md:p-6 ${theme.contentCardClass}`}>
                   <SmartImage
                     src={galleryUrls[0] || "https://images.unsplash.com/photo-1529636798458-92182e662485?w=1200&q=80&auto=format&fit=crop"}
-                    alt="Historia do casal"
+                    alt="História do casal"
                     className="h-56 w-full rounded-2xl object-cover md:col-span-5 md:h-full"
                   />
                   <div className="md:col-span-7">
-                    <h2 className={`text-4xl ${theme.titleClass}`}>Historia do Casal</h2>
+                    <h2 className={`text-4xl ${theme.titleClass}`}>História do Casal</h2>
                     <p className={`mt-3 ${theme.mutedClass}`}>
-                      {couple.wedding.story ?? "Uma historia de amor, parceria e celebracao com as pessoas mais importantes."}
+                      {couple.wedding.story ?? "Uma história de amor, parceria e celebração com as pessoas mais importantes."}
                     </p>
                     <RsvpModalTrigger slug={slug} />
                   </div>
@@ -307,9 +305,9 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
               <AnimatedSection>
                 <Card className={`grid gap-4 p-4 md:grid-cols-2 md:p-6 ${theme.contentCardClass}`}>
                   <div>
-                    <h3 className={`text-3xl ${theme.titleClass}`}>Album de Fotos</h3>
-                    <p className={`mt-2 text-sm ${theme.mutedClass}`}>Momentos que marcaram nossa historia.</p>
-                    <div className="mt-4 grid grid-cols-3 gap-2">
+                    <h3 className={`text-3xl ${theme.titleClass}`}>Álbum de Fotos</h3>
+                    <p className={`mt-2 text-sm ${theme.mutedClass}`}>Momentos que marcaram nossa história.</p>
+                    <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
                       {(galleryUrls.length
                         ? galleryUrls
                         : [
@@ -324,9 +322,9 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                     </div>
                   </div>
                   <div className={`rounded-2xl border p-4 ${theme.statBoxClass}`}>
-                    <h3 className={`text-3xl ${theme.titleClass}`}>Confirmacao de Presenca</h3>
+                    <h3 className={`text-3xl ${theme.titleClass}`}>Confirmação de Presença</h3>
                     <p className={`mt-2 text-sm ${theme.mutedClass}`}>
-                      Sua presenca torna nosso dia ainda mais especial. Confirme em menos de 1 minuto.
+                      Sua presença torna nosso dia ainda mais especial. Confirme em menos de 1 minuto.
                     </p>
                     <div className="mt-5">
                       <RsvpModalTrigger slug={slug} />
@@ -339,9 +337,9 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                 <Card className={`grid gap-4 p-4 md:grid-cols-2 md:p-6 ${theme.contentCardClass}`}>
                   <div className={`rounded-2xl border p-4 ${theme.statBoxClass}`}>
                     <p className={`text-xs tracking-[0.16em] ${theme.mutedClass}`}>CRONOGRAMA DO DIA</p>
-                    <h3 className={`mt-2 text-3xl ${theme.titleClass}`}>Planejamento da celebracao</h3>
+                    <h3 className={`mt-2 text-3xl ${theme.titleClass}`}>Planejamento da celebração</h3>
                     <div className="mt-3 space-y-2">
-                      {(scheduleItems.length ? scheduleItems : ["16:00 - Cerimonia", "18:00 - Recepcao", "22:30 - Brinde especial"]).map((item) => (
+                      {(scheduleItems.length ? scheduleItems : ["16:00 - Cerimônia", "18:00 - Recepção", "22:30 - Brinde especial"]).map((item) => (
                         <div key={item} className="rounded-xl border bg-white/85 px-3 py-2 text-sm">
                           {item}
                         </div>
@@ -389,21 +387,21 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
           </section>
 
           <AnimatedSection className="px-3 pb-8 md:px-6 md:pb-10">
-            <Card className={`grid gap-4 p-4 md:grid-cols-3 md:p-6 ${theme.contentCardClass}`}>
+            <Card className={`grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 md:p-6 ${theme.contentCardClass}`}>
               <div className={`rounded-2xl border p-4 ${theme.statBoxClass}`}>
                 <p className={`text-xs tracking-[0.16em] ${theme.mutedClass}`}>CERIMONIA</p>
                 <h3 className={`mt-2 text-3xl ${theme.titleClass}`}>Detalhes do Grande Dia</h3>
                 <p className={`mt-2 text-sm ${theme.mutedClass}`}>
-                  {couple.wedding.subtitle ?? "Uma celebracao especial com pessoas queridas, em um dia inesquecivel."}
+                  {couple.wedding.subtitle ?? "Uma celebração especial com pessoas queridas, em um dia inesquecível."}
                 </p>
                 <p className={`mt-2 text-sm ${theme.mutedClass}`}>
-                  {couple.wedding.location ? `Local: ${couple.wedding.location}` : "Local sera confirmado em breve."}
+                  {couple.wedding.location ? `Local: ${couple.wedding.location}` : "Local será confirmado em breve."}
                 </p>
               </div>
 
               <div className={`rounded-2xl border p-4 ${theme.statBoxClass}`}>
                 <p className={`text-xs tracking-[0.16em] ${theme.mutedClass}`}>JORNADA DO CASAL</p>
-                <div className="mt-3 grid grid-cols-3 gap-2">
+                <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
                   <div className="rounded-xl border bg-white/80 p-3 text-center">
                     <p className={`text-2xl ${theme.titleClass}`}>{confirmed}</p>
                     <p className={`text-[11px] tracking-[0.14em] ${theme.mutedClass}`}>CONFIRMADOS</p>
@@ -417,14 +415,14 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
                     <p className={`text-[11px] tracking-[0.14em] ${theme.mutedClass}`}>CONVIDADOS</p>
                   </div>
                 </div>
-                <p className={`mt-3 text-sm ${theme.mutedClass}`}>Atualizacoes em tempo real no site dos noivos.</p>
+                <p className={`mt-3 text-sm ${theme.mutedClass}`}>Atualizações em tempo real no site dos noivos.</p>
               </div>
 
               <div className={`rounded-2xl border p-4 ${theme.statBoxClass}`}>
                 <p className={`text-xs tracking-[0.16em] ${theme.mutedClass}`}>PARTICIPE</p>
-                <h3 className={`mt-2 text-3xl ${theme.titleClass}`}>Faca parte desse momento</h3>
+                <h3 className={`mt-2 text-3xl ${theme.titleClass}`}>Faça parte deste momento</h3>
                 <p className={`mt-2 text-sm ${theme.mutedClass}`}>
-                  Confirme sua presenca e escolha um presente com pagamento Pix em poucos passos.
+                  Confirme sua presença e escolha um presente com pagamento Pix em poucos passos.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <RsvpModalTrigger slug={slug} />
@@ -442,14 +440,14 @@ export default async function WeddingPublicPage({ params }: { params: Promise<{ 
           </AnimatedSection>
 
           <footer id="rsvp" className="border-t px-4 py-8 md:px-8 md:py-10">
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <Card className={`rounded-2xl border p-4 ${theme.contentCardClass}`}>
-                <p className={`text-xs tracking-[0.16em] ${theme.mutedClass}`}>SEGURANCA</p>
-                <h4 className={`mt-2 text-2xl ${theme.titleClass}`}>Pix com confianca</h4>
+                <p className={`text-xs tracking-[0.16em] ${theme.mutedClass}`}>SEGURANÇA</p>
+                <h4 className={`mt-2 text-2xl ${theme.titleClass}`}>Pix com confiança</h4>
                 <p className={`mt-2 text-sm ${theme.mutedClass}`}>Pagamento com chave oficial cadastrada pelos noivos.</p>
               </Card>
               <Card className={`rounded-2xl border p-4 ${theme.contentCardClass}`}>
-                <p className={`text-xs tracking-[0.16em] ${theme.mutedClass}`}>CONFIRMACAO RAPIDA</p>
+                <p className={`text-xs tracking-[0.16em] ${theme.mutedClass}`}>CONFIRMAÇÃO RÁPIDA</p>
                 <h4 className={`mt-2 text-2xl ${theme.titleClass}`}>RSVP em 1 minuto</h4>
                 <p className={`mt-2 text-sm ${theme.mutedClass}`}>Fluxo simples com resposta imediata e compartilhamento.</p>
               </Card>

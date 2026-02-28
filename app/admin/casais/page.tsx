@@ -30,7 +30,7 @@ export default function AdminCouplesPage() {
   return (
     <div className="space-y-4">
       <Card className="p-5">
-        <form className="grid gap-2 md:grid-cols-3" onSubmit={create}>
+        <form className="grid gap-2 lg:grid-cols-3" onSubmit={create}>
           <Input name="name" placeholder="Nome do casal" required />
           <Input name="slug" placeholder="slug" />
           <Button>Criar</Button>
@@ -38,13 +38,12 @@ export default function AdminCouplesPage() {
       </Card>
       <Card className="p-5">
         {couples.map((c) => (
-          <div key={c.id} className="grid grid-cols-2 border-b py-2 text-sm">
-            <span>{c.name}</span>
-            <span>{c.slug}</span>
+          <div key={c.id} className="border-b py-2 text-sm md:grid md:grid-cols-2 md:gap-2">
+            <p className="break-words">{c.name}</p>
+            <p className="break-words text-[var(--color-muted)] md:text-inherit">{c.slug}</p>
           </div>
         ))}
       </Card>
     </div>
   );
 }
-

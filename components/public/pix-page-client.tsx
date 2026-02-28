@@ -36,14 +36,14 @@ export function PixPageClient({
           });
           const data = await res.json().catch(() => ({}));
           if (!res.ok) {
-            toast.error((data as { error?: string }).error ?? "Falha ao atualizar status do pedido");
+            toast.error((data as { error?: string }).error ?? "Falha ao atualizar o status do pedido.");
             return;
           }
           const nextStatus = (data as { status?: string }).status ?? "AWAITING_CONFIRMATION";
           setCurrentStatus(nextStatus);
-          toast.success("Confirmacao enviada com sucesso");
+          toast.success("Confirmação enviada com sucesso.");
         } catch {
-          toast.error("Erro de conexao ao confirmar pagamento");
+          toast.error("Erro de conexão ao confirmar o pagamento.");
         }
       }}
     />

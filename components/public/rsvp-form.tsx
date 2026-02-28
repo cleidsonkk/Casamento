@@ -43,19 +43,19 @@ export function RsvpForm({ slug }: { slug: string }) {
 
     if (!res.ok) {
       const data = await res.json();
-      toast.error(data.error ?? "Falha no RSVP");
+      toast.error(data.error ?? "Falha no RSVP.");
       return;
     }
 
     setConfirmed({ name, companions, status });
-    toast.success("Presenca registrada com sucesso");
+    toast.success("Presença registrada com sucesso.");
     e.currentTarget.reset();
     setStatus("YES");
   }
 
   async function share() {
     const url = `${window.location.origin}/${slug}/rsvp`;
-    const message = "Confirme sua presenca no casamento";
+    const message = "Confirme sua presença no casamento.";
     if (navigator.share) {
       try {
         await navigator.share({ title: "RSVP", text: message, url });
@@ -100,7 +100,7 @@ export function RsvpForm({ slug }: { slug: string }) {
             onClick={() => setStatus("NO")}
             className={`h-10 rounded-xl text-sm transition ${status === "NO" ? "bg-black text-white" : "text-[var(--color-muted)]"}`}
           >
-            Nao poderei ir
+            Não poderei ir
           </button>
         </div>
 
@@ -114,13 +114,13 @@ export function RsvpForm({ slug }: { slug: string }) {
             placeholder="Acompanhantes"
             className="h-12 rounded-2xl bg-white/90"
           />
-          <Input name="passcode" placeholder="Codigo (se solicitado)" className="h-12 rounded-2xl bg-white/90" />
+          <Input name="passcode" placeholder="Código (se solicitado)" className="h-12 rounded-2xl bg-white/90" />
         </div>
 
         <Textarea name="message" placeholder="Mensagem para os noivos" className="min-h-28 rounded-2xl bg-white/90" />
 
         <Button disabled={loading} className="h-12 w-full rounded-2xl text-base">
-          {loading ? "Enviando..." : "Confirmar presenca"}
+          {loading ? "Enviando..." : "Confirmar presença"}
         </Button>
       </form>
 
@@ -132,7 +132,7 @@ export function RsvpForm({ slug }: { slug: string }) {
             exit={{ opacity: 0, y: 12 }}
             className="rounded-2xl border border-[#e7dcc7] bg-[linear-gradient(145deg,#fffefb,#f6efe3)] p-4"
           >
-            <p className="text-xs tracking-[0.14em] text-[var(--color-muted)]">CONFIRMACAO ENVIADA COM SUCESSO</p>
+            <p className="text-xs tracking-[0.14em] text-[var(--color-muted)]">CONFIRMAÇÃO ENVIADA COM SUCESSO</p>
             <h3 className="mt-1 text-xl">Resumo do RSVP</h3>
             <div className="mt-3 grid gap-2 text-sm sm:grid-cols-3">
               <div className="rounded-xl border bg-white/80 p-3">
@@ -141,7 +141,7 @@ export function RsvpForm({ slug }: { slug: string }) {
               </div>
               <div className="rounded-xl border bg-white/80 p-3">
                 <p className="text-xs text-[var(--color-muted)]">Status</p>
-                <p>{confirmed.status === "YES" ? "Presenca confirmada" : "Nao podera comparecer"}</p>
+                <p>{confirmed.status === "YES" ? "Presença confirmada" : "Não poderá comparecer"}</p>
               </div>
               <div className="rounded-xl border bg-white/80 p-3">
                 <p className="text-xs text-[var(--color-muted)]">Acompanhantes</p>

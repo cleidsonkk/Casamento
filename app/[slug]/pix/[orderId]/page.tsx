@@ -22,8 +22,8 @@ export default async function PixPage({ params }: { params: Promise<{ slug: stri
     return (
       <main className={`mx-auto min-h-screen px-6 py-20 ${theme.shellClass}`}>
         <div className={`mx-auto max-w-xl rounded-3xl border p-8 ${theme.contentCardClass}`}>
-          <h1 className={`mb-2 text-3xl ${theme.titleClass}`}>Pix indisponivel</h1>
-          <p className={`mb-4 ${theme.mutedClass}`}>Os noivos ainda nao configuraram o Pix.</p>
+          <h1 className={`mb-2 text-3xl ${theme.titleClass}`}>Pix indisponível</h1>
+          <p className={`mb-4 ${theme.mutedClass}`}>Os noivos ainda não configuraram o Pix.</p>
           <Link href={`/${slug}/presentes`}>
             <Button>Voltar</Button>
           </Link>

@@ -30,7 +30,7 @@ export default async function DashboardPage() {
 
   return (
     <section className="space-y-6">
-      <div className="flex items-end justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs tracking-[0.2em] text-[var(--color-muted)]">VISAO GERAL</p>
           <h1 className="mt-1 text-3xl md:text-4xl">Painel dos noivos</h1>

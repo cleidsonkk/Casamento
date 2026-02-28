@@ -66,7 +66,7 @@ export function PublicStickyNav({
               ))}
             </nav>
             <Link href={`/${slug}/rsvp`}>
-              <Button className="h-10 rounded-full px-6">Confirmar Presenca</Button>
+              <Button className="h-10 rounded-full px-6">Confirmar Presença</Button>
             </Link>
           </div>
         </div>
@@ -75,11 +75,10 @@ export function PublicStickyNav({
       <div className="fixed inset-x-0 bottom-3 z-40 px-4 md:hidden">
         <Link href={`/${slug}/rsvp`}>
           <Button className="h-12 w-full rounded-full shadow-[0_18px_40px_-22px_rgba(0,0,0,.55)]">
-            Confirmar Presenca
+            Confirmar Presença
           </Button>
         </Link>
       </div>
     </>
   );
 }
-

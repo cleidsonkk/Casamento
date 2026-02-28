@@ -48,9 +48,9 @@ export default async function RsvpPage({ params }: { params: Promise<{ slug: str
                 </Link>
 
                 <Card className={`border p-5 md:p-7 ${theme.heroCardClass}`}>
-                  <p className={`text-xs tracking-[0.18em] ${theme.mutedClass}`}>CONFIRMACAO DE PRESENCA</p>
-                  <h1 className={`mt-1 text-3xl md:text-4xl ${theme.titleClass}`}>Confirme sua presenca</h1>
-                  <p className={`mb-5 mt-2 ${theme.mutedClass}`}>Fluxo rapido, elegante e seguro para seus convidados.</p>
+                  <p className={`text-xs tracking-[0.18em] ${theme.mutedClass}`}>CONFIRMAÇÃO DE PRESENÇA</p>
+                  <h1 className={`mt-1 text-3xl md:text-4xl ${theme.titleClass}`}>Confirme sua presença</h1>
+                  <p className={`mb-5 mt-2 ${theme.mutedClass}`}>Fluxo rápido, elegante e seguro para seus convidados.</p>
                   <RsvpForm slug={slug} />
                 </Card>
               </div>
