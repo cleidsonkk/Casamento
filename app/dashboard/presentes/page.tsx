@@ -87,42 +87,61 @@ export default function GiftsDashboardPage() {
 
   async function save() {
     if (saving) return;
-    setSaving(true);
-    const items = rows.map((row) => ({
-      catalogItemId: row.catalogItemId,
-      active: row.active,
-      priceCents: parseCurrencyInputToCents(row.priceInput),
-      giftMode: row.giftMode,
-    }));
-    const res = await fetch("/api/dashboard/gifts", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items }),
-    });
-    const data = (await res.json().catch(() => ({}))) as { error?: string };
-    if (!res.ok) {
-      toast.error(data.error ?? "Falha ao salvar presentes");
-      setSaving(false);
+    const invalidActiveRow = rows.find(
+      (row) => row.active && parseCurrencyInputToCents(row.priceInput) < 100,
+    );
+    if (invalidActiveRow) {
+      toast.error(`Defina ao menos R$ 1,00 para "${invalidActiveRow.title}".`);
       return;
     }
-    setRows((old) =>
-      old.map((row) => {
-        const cents = parseCurrencyInputToCents(row.priceInput);
-        return { ...row, priceCents: cents, priceInput: formatCentsToInput(cents) };
-      }),
-    );
-    toast.success("Presentes atualizados");
-    setSaving(false);
+
+    setSaving(true);
+    try {
+      const items = rows.map((row) => ({
+        catalogItemId: row.catalogItemId,
+        active: row.active,
+        priceCents: parseCurrencyInputToCents(row.priceInput),
+        giftMode: row.giftMode,
+      }));
+      const res = await fetch("/api/dashboard/gifts", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        toast.error(data.error ?? "Falha ao salvar presentes");
+        return;
+      }
+      setRows((old) =>
+        old.map((row) => {
+          const cents = parseCurrencyInputToCents(row.priceInput);
+          const normalizedCents = row.active ? Math.max(100, cents) : cents;
+          return {
+            ...row,
+            priceCents: normalizedCents,
+            priceInput: normalizedCents > 0 ? formatCentsToInput(normalizedCents) : "",
+          };
+        }),
+      );
+      toast.success("Presentes atualizados");
+    } catch {
+      toast.error("Falha ao salvar presentes");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
     <Card className="border-white/80 bg-white/80 p-4 shadow-[0_24px_55px_-40px_rgba(0,0,0,.45)] backdrop-blur md:p-5">
-      <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
+      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
           <h1 className="text-3xl">Presentes</h1>
           <p className="text-sm text-[var(--color-muted)]">Catalogo completo com paginacao</p>
         </div>
-        <Button onClick={save} disabled={saving}>{saving ? "Salvando..." : "Salvar"}</Button>
+        <Button className="w-full sm:w-auto" onClick={save} disabled={saving}>
+          {saving ? "Salvando..." : "Salvar"}
+        </Button>
       </div>
 
       <input
@@ -145,9 +164,13 @@ export default function GiftsDashboardPage() {
       <div className="space-y-2">
         {pagedRows.map((row) => {
           const idx = rows.findIndex((item) => item.catalogItemId === row.catalogItemId);
+          const priceInvalid = row.active && parseCurrencyInputToCents(row.priceInput) < 100;
           return (
-            <div key={row.catalogItemId} className="grid grid-cols-1 items-center gap-2 rounded-xl border bg-white/90 p-3 text-sm lg:grid-cols-12">
-              <label className="md:col-span-1">
+            <div
+              key={row.catalogItemId}
+              className="grid grid-cols-1 gap-3 rounded-xl border bg-white/90 p-3 text-sm xl:grid-cols-12 xl:items-center"
+            >
+              <label className="flex items-center xl:col-span-1">
                 <input
                   type="checkbox"
                   checked={row.active}
@@ -155,40 +178,49 @@ export default function GiftsDashboardPage() {
                     setRows((old) => old.map((r, i) => (i === idx ? { ...r, active: e.target.checked } : r)))
                   }
                 />
-                <span className="ml-2 lg:hidden">Ativar</span>
+                <span className="ml-2 xl:hidden">Ativar</span>
               </label>
 
-              <div className="flex items-center gap-2 lg:col-span-5">
+              <div className="flex min-w-0 items-center gap-3 xl:col-span-5">
                 <SmartImage
                   src={getGiftImageUrl(row.imageUrl, row.title, row.category)}
                   alt={row.title}
-                  className="h-10 w-10 rounded-lg border object-cover"
+                  className="h-12 w-12 shrink-0 rounded-lg border object-cover"
                 />
-                <div>
-                  <span>{row.title}</span>
+                <div className="min-w-0">
+                  <span className="block break-words font-medium">{row.title}</span>
                   <p className="text-xs text-[var(--color-muted)]">{row.category}</p>
                 </div>
               </div>
 
-              <div className="flex items-center rounded-lg border bg-white px-2 lg:col-span-3">
-                <span className="mr-1 text-[var(--color-muted)]">R$</span>
-                <input
-                  className="w-full py-1 outline-none"
-                  type="text"
-                  inputMode="decimal"
-                  value={row.priceInput}
-                  onChange={(e) =>
-                    setRows((old) =>
-                      old.map((r, i) =>
-                        i === idx ? { ...r, priceInput: e.target.value.replace(/[^\d.,]/g, "") } : r,
-                      ),
-                    )
-                  }
-                />
+              <div className="space-y-1 xl:col-span-3">
+                <div
+                  className={`flex items-center rounded-lg border bg-white px-2 ${
+                    priceInvalid ? "border-red-300 ring-1 ring-red-200" : ""
+                  }`}
+                >
+                  <span className="mr-1 text-[var(--color-muted)]">R$</span>
+                  <input
+                    className="w-full py-2 outline-none"
+                    type="text"
+                    inputMode="decimal"
+                    value={row.priceInput}
+                    onChange={(e) =>
+                      setRows((old) =>
+                        old.map((r, i) =>
+                          i === idx ? { ...r, priceInput: e.target.value.replace(/[^\d.,]/g, "") } : r,
+                        ),
+                      )
+                    }
+                  />
+                </div>
+                {priceInvalid ? (
+                  <p className="text-xs text-red-600">Presentes ativos precisam ter pelo menos R$ 1,00.</p>
+                ) : null}
               </div>
 
               <select
-                className="rounded-lg border px-2 py-2 lg:col-span-3"
+                className="rounded-lg border px-3 py-2 xl:col-span-3"
                 value={row.giftMode}
                 onChange={(e) =>
                   setRows((old) =>
@@ -211,7 +243,7 @@ export default function GiftsDashboardPage() {
         <p className="text-sm text-[var(--color-muted)]">
           Exibindo {(currentPage - 1) * PAGE_SIZE + 1} - {Math.min(currentPage * PAGE_SIZE, filtered.length)} de {filtered.length}
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button type="button" variant="outline" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={loading || currentPage === 1}>
             Anterior
           </Button>

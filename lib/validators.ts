@@ -50,12 +50,22 @@ export const dashboardPixSchema = z.object({
 export const dashboardGiftItemSchema = z.object({
   catalogItemId: z.string().min(8),
   active: z.boolean(),
-  priceCents: z.coerce.number().int().min(100).max(50_000_000),
+  priceCents: z.coerce.number().int().min(0).max(50_000_000),
   giftMode: z.enum(["UNIQUE", "REPEATABLE"]),
 });
 
 export const dashboardGiftsSchema = z.object({
   items: z.array(dashboardGiftItemSchema).max(500),
+}).superRefine((data, ctx) => {
+  for (const [index, item] of data.items.entries()) {
+    if (item.active && item.priceCents < 100) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Presentes ativos precisam ter valor minimo de R$ 1,00.",
+        path: ["items", index, "priceCents"],
+      });
+    }
+  }
 });
 
 export const dashboardOrderConfirmSchema = z.object({
