@@ -31,6 +31,7 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
   const [sort, setSort] = useState<"asc" | "desc" | "alpha">("desc");
   const [selected, setSelected] = useState<Gift | null>(null);
   const [page, setPage] = useState(1);
+  const [submitting, setSubmitting] = useState(false);
   const nameInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -67,7 +68,7 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
 
   async function checkout(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!selected) return;
+    if (!selected || submitting) return;
     const formData = new FormData(e.currentTarget);
     const body = {
       weddingGiftId: selected.id,
@@ -76,15 +77,32 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
       hp: formData.get("website"),
     };
 
-    const res = await fetch(`/api/public/${slug}/orders`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/public/${slug}/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
 
-    const data = await res.json();
-    if (!res.ok) return toast.error(data.error ?? "Falha ao iniciar checkout");
-    window.location.href = `/${slug}/pix/${data.orderId}`;
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error((data as { error?: string }).error ?? "Falha ao iniciar checkout");
+        return;
+      }
+
+      const orderId = (data as { orderId?: string }).orderId;
+      if (!orderId) {
+        toast.error("Nao foi possivel gerar o pedido Pix.");
+        return;
+      }
+
+      window.location.assign(`/${slug}/pix/${orderId}`);
+    } catch {
+      toast.error("Erro de conexao ao iniciar o pagamento Pix.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -245,10 +263,12 @@ export function GiftsClient({ slug, items }: { slug: string; items: Gift[] }) {
                       />
                       <Textarea name="message" placeholder="Mensagem para os noivos" className="rounded-2xl" />
                       <div className="grid grid-cols-2 gap-2">
-                        <Button type="button" variant="outline" className="h-11 rounded-xl" onClick={() => setSelected(null)}>
+                        <Button type="button" variant="outline" className="h-11 rounded-xl" onClick={() => setSelected(null)} disabled={submitting}>
                           Cancelar
                         </Button>
-                        <Button className="h-11 rounded-xl">Ir para Pix</Button>
+                        <Button type="submit" className="h-11 rounded-xl" disabled={submitting}>
+                          {submitting ? "Gerando Pix..." : "Ir para Pix"}
+                        </Button>
                       </div>
                     </form>
                   </motion.div>
