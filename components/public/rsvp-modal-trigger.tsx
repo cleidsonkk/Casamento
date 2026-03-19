@@ -13,14 +13,14 @@ export function RsvpModalTrigger({ slug }: { slug: string }) {
   return (
     <>
       <Button type="button" onClick={() => setOpen(true)} className="rounded-xl">
-        Confirmar presença
+        Confirmar presenca
       </Button>
       {typeof document !== "undefined"
         ? createPortal(
             <AnimatePresence>
               {open && (
                 <motion.div
-                  className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 p-4"
+                  className="fixed inset-0 z-[120] flex items-end justify-center bg-black/50 p-0 md:items-center md:p-4"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -34,13 +34,13 @@ export function RsvpModalTrigger({ slug }: { slug: string }) {
                     className="w-full max-w-2xl"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <Card className="max-h-[88vh] overflow-y-auto rounded-3xl border-white/75 bg-white p-5 md:p-7">
-                      <div className="mb-4 flex items-center justify-between">
-                        <div>
+                    <Card className="max-h-[92vh] min-h-[78vh] overflow-y-auto rounded-t-[2rem] border-white/75 bg-white p-4 md:min-h-0 md:rounded-3xl md:p-7">
+                      <div className="sticky top-0 z-10 -mx-4 mb-4 flex items-start justify-between gap-3 border-b border-black/5 bg-white/96 px-4 pb-3 pt-1 backdrop-blur md:static md:mx-0 md:border-b-0 md:bg-transparent md:px-0 md:pb-0 md:pt-0">
+                        <div className="min-w-0">
                           <p className="text-xs tracking-[0.18em] text-[var(--color-muted)]">RSVP PREMIUM</p>
-                          <h3 className="text-2xl">Confirmar presença em 1 minuto</h3>
+                          <h3 className="text-xl md:text-2xl">Confirmar presenca em 1 minuto</h3>
                         </div>
-                        <Button type="button" variant="outline" className="rounded-full" onClick={() => setOpen(false)}>
+                        <Button type="button" variant="outline" className="shrink-0 rounded-full" onClick={() => setOpen(false)}>
                           Fechar
                         </Button>
                       </div>

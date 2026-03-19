@@ -1,9 +1,11 @@
-import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireCoupleContext } from "@/lib/currentUser";
 import { logAudit } from "@/lib/audit";
+import { apiError, apiSuccess, createRequestId, logApiError } from "@/lib/api";
+import { dashboardGiftsSchema } from "@/lib/validators";
 
 export async function GET() {
+  const requestId = createRequestId();
   try {
     const { coupleId } = await requireCoupleContext();
     const gifts = await db.weddingGift.findMany({
@@ -12,18 +14,29 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
     const catalog = await db.giftCatalogItem.findMany({ orderBy: { createdAt: "asc" } });
-    return NextResponse.json({ gifts, catalog });
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiSuccess({ gifts, catalog });
+  } catch (error) {
+    logApiError("dashboard-gifts:get", error, requestId);
+    return apiError("Unauthorized", { status: 401, code: "UNAUTHORIZED", requestId });
   }
 }
 
 export async function PUT(req: Request) {
+  const requestId = createRequestId();
   try {
     const { coupleId, userId } = await requireCoupleContext();
     const body = await req.json();
-    const updates = body.items as Array<{ id?: string; catalogItemId: string; active: boolean; priceCents: number; giftMode: "UNIQUE" | "REPEATABLE" }>;
-    for (const item of updates) {
+    const parsed = dashboardGiftsSchema.safeParse(body);
+    if (!parsed.success) {
+      return apiError("Dados invalidos para lista de presentes.", {
+        status: 400,
+        code: "INVALID_GIFTS",
+        requestId,
+        details: parsed.error.flatten(),
+      });
+    }
+
+    for (const item of parsed.data.items) {
       await db.weddingGift.upsert({
         where: { coupleId_catalogItemId: { coupleId, catalogItemId: item.catalogItemId } },
         update: { active: item.active, priceCents: item.priceCents, giftMode: item.giftMode },
@@ -36,16 +49,17 @@ export async function PUT(req: Request) {
         },
       });
     }
+
     await logAudit({
       action: "GIFTS_UPDATED",
       entity: "WeddingGift",
       userId,
       coupleId,
-      metadata: { count: updates.length },
+      metadata: { count: parsed.data.items.length },
     });
-    return NextResponse.json({ ok: true });
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiSuccess({ ok: true });
+  } catch (error) {
+    logApiError("dashboard-gifts:put", error, requestId);
+    return apiError("Nao foi possivel salvar os presentes.", { status: 500, code: "GIFTS_SAVE_FAILED", requestId });
   }
 }
-

@@ -4,15 +4,16 @@ import { db } from "@/lib/db";
 
 export async function requireCoupleContext() {
   const session = await requireSession();
+  const memberships = await db.coupleMember.findMany({
+    where: { userId: session.user.id },
+    orderBy: { createdAt: "desc" },
+    select: { coupleId: true },
+  });
+  const coupleIds = memberships.map((membership) => membership.coupleId);
   let coupleId = session.user.coupleId;
 
-  if (!coupleId) {
-    const membership = await db.coupleMember.findFirst({
-      where: { userId: session.user.id },
-      orderBy: { createdAt: "desc" },
-      select: { coupleId: true },
-    });
-    coupleId = membership?.coupleId;
+  if (!coupleId || !coupleIds.includes(coupleId)) {
+    coupleId = coupleIds[0];
   }
 
   if (!coupleId) throw new Error("Casal nao vinculado");

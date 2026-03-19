@@ -49,7 +49,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         couples={couples}
         currentCoupleId={coupleId}
       />
-      <div className="relative mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">{children}</div>
+      <div className="relative mx-auto max-w-7xl px-4 pb-24 pt-6 md:px-6 md:pb-10 md:pt-8">{children}</div>
     </main>
   );
 }

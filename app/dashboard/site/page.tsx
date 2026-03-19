@@ -76,6 +76,9 @@ export default function DashboardSitePage() {
   const [galleryUrls, setGalleryUrls] = useState<string[]>([]);
   const [uploadingHero, setUploadingHero] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [applyingTemplate, setApplyingTemplate] = useState(false);
   const router = useRouter();
 
   const selectedTemplate = useMemo(
@@ -85,26 +88,32 @@ export default function DashboardSitePage() {
 
   useEffect(() => {
     setShareBase(window.location.origin);
+    setLoading(true);
     fetch("/api/dashboard/site")
-      .then((response) => response.json())
+      .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
       .then((data) => {
-        const nextWedding = data?.wedding ?? {};
-        const nextTemplates = data?.templates ?? [];
-        const nextGallery: GalleryPhoto[] = data?.gallery ?? [];
-        setCoupleSlug(data?.slug ?? "");
+        if (!data.ok) {
+          toast.error(data.data?.error ?? "Nao foi possivel carregar o site do casamento");
+          return;
+        }
+        const nextWedding = data.data?.wedding ?? {};
+        const nextTemplates = data.data?.templates ?? [];
+        const nextGallery: GalleryPhoto[] = data.data?.gallery ?? [];
+        setCoupleSlug(data.data?.slug ?? "");
         setWedding(nextWedding);
         setTemplates(nextTemplates);
         setSelectedTemplateId(nextWedding.templateId ?? "");
-        setHeroImageUrl(data?.heroImageUrl ?? "");
-        setHeroVideoUrl(data?.heroVideoUrl ?? "");
-        setEventSchedule(data?.eventSchedule ?? "");
-        setDressCode(data?.dressCode ?? "");
-        setMapLink(data?.mapLink ?? "");
-        setWeddingParty(data?.weddingParty ?? "");
+        setHeroImageUrl(data.data?.heroImageUrl ?? "");
+        setHeroVideoUrl(data.data?.heroVideoUrl ?? "");
+        setEventSchedule(data.data?.eventSchedule ?? "");
+        setDressCode(data.data?.dressCode ?? "");
+        setMapLink(data.data?.mapLink ?? "");
+        setWeddingParty(data.data?.weddingParty ?? "");
         setGalleryUrls(nextGallery.map((photo) => photo.imageUrl));
         const initial = nextTemplates.find((template: Template) => template.id === nextWedding.templateId);
         applyTemplatePreview(initial?.tokensJson);
-      });
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   async function uploadFile(file: File) {
@@ -153,6 +162,7 @@ export default function DashboardSitePage() {
 
   async function saveForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (saving) return;
     const formData = new FormData(e.currentTarget);
     const payload = {
       title: formData.get("title"),
@@ -173,25 +183,37 @@ export default function DashboardSitePage() {
       galleryUrls,
     };
 
-    const res = await fetch("/api/dashboard/site", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) return toast.error("Falha ao salvar");
-    toast.success("Site atualizado");
-    router.refresh();
+    setSaving(true);
+    try {
+      const res = await fetch("/api/dashboard/site", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return toast.error((data as { error?: string }).error ?? "Falha ao salvar");
+      toast.success("Site atualizado");
+      router.refresh();
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function saveTemplateInstant(templateId: string) {
-    const res = await fetch("/api/dashboard/site", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ templateId }),
-    });
-    if (!res.ok) return toast.error("Falha ao aplicar template");
-    toast.success("Template aplicado");
-    router.refresh();
+    setApplyingTemplate(true);
+    try {
+      const res = await fetch("/api/dashboard/site", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ templateId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return toast.error((data as { error?: string }).error ?? "Falha ao aplicar template");
+      toast.success("Template aplicado");
+      router.refresh();
+    } finally {
+      setApplyingTemplate(false);
+    }
   }
 
   const publicLink = coupleSlug ? `${shareBase}/${coupleSlug}` : "";
@@ -211,6 +233,9 @@ export default function DashboardSitePage() {
   return (
     <Card className="w-full max-w-5xl border-white/80 bg-white/80 p-4 shadow-[0_24px_55px_-40px_rgba(0,0,0,.45)] backdrop-blur md:p-6">
       <h1 className="mb-4 text-3xl">Site do casamento</h1>
+      {loading ? (
+        <div className="rounded-2xl border bg-white/85 px-4 py-8 text-center text-sm text-[var(--color-muted)]">Carregando configuracoes do site...</div>
+      ) : (
       <form className="space-y-4" onSubmit={saveForm}>
         <Input name="title" defaultValue={wedding.title ?? ""} placeholder="Titulo" />
         <Input name="subtitle" defaultValue={wedding.subtitle ?? ""} placeholder="Subtitulo" />
@@ -235,7 +260,7 @@ export default function DashboardSitePage() {
                 className="hidden"
                 onChange={(e) => onHeroFileChange(e.target.files?.[0])}
               />
-              <span className="inline-flex h-11 w-full items-center justify-center rounded-xl border bg-white px-3 text-sm">
+              <span className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border bg-white px-3 py-3 text-center text-sm">
                 {uploadingHero ? "Enviando foto principal..." : "Selecionar foto principal (celular/computador)"}
               </span>
             </label>
@@ -265,7 +290,7 @@ export default function DashboardSitePage() {
                 className="hidden"
                 onChange={(e) => onGalleryFilesChange(e.target.files)}
               />
-              <span className="inline-flex h-11 w-full items-center justify-center rounded-xl border bg-white px-3 text-sm">
+              <span className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border bg-white px-3 py-3 text-center text-sm">
                 {uploadingGallery ? "Enviando fotos do album..." : "Adicionar fotos ao album (celular/computador)"}
               </span>
             </label>
@@ -306,6 +331,7 @@ export default function DashboardSitePage() {
           <select
             name="templateId"
             value={selectedTemplateId}
+            disabled={applyingTemplate}
             onChange={async (e) => {
               const id = e.target.value;
               setSelectedTemplateId(id);
@@ -323,43 +349,50 @@ export default function DashboardSitePage() {
             ))}
           </select>
           <p className="text-xs text-[var(--color-muted)]">
-            {selectedTemplate ? `Template ativo: ${selectedTemplate.name}` : "Nenhum template selecionado"}
+            {applyingTemplate
+              ? "Aplicando template..."
+              : selectedTemplate
+                ? `Template ativo: ${selectedTemplate.name}`
+                : "Nenhum template selecionado"}
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-4 text-sm">
-          <label>
+        <div className="grid gap-2 text-sm sm:grid-cols-3">
+          <label className="rounded-xl border bg-white/80 px-3 py-3">
             <input type="checkbox" name="published" defaultChecked={Boolean(wedding.published)} /> Publicado
           </label>
-          <label>
+          <label className="rounded-xl border bg-white/80 px-3 py-3">
             <input type="checkbox" name="isRsvpOpen" defaultChecked={Boolean(wedding.isRsvpOpen)} /> RSVP aberto
           </label>
-          <label>
+          <label className="rounded-xl border bg-white/80 px-3 py-3">
             <input type="checkbox" name="rsvpRestricted" defaultChecked={Boolean(wedding.rsvpRestricted)} /> RSVP restrito
           </label>
         </div>
 
-        <Button className="w-full md:w-auto">Salvar informacoes</Button>
+        <Button className="w-full md:w-auto" disabled={saving || uploadingHero || uploadingGallery || applyingTemplate}>
+          {saving ? "Salvando informacoes..." : "Salvar informacoes"}
+        </Button>
       </form>
+      )}
 
       <div className="mt-6 space-y-3 rounded-2xl border border-[var(--color-border)] bg-white/70 p-4">
         <h2 className="text-lg font-medium">Compartilhar com convidados</h2>
         <p className="text-sm text-[var(--color-muted)]">Copie os links do seu casamento e envie para os convidados.</p>
 
-        {[
+        {[ 
           { label: "Site do casal", value: publicLink },
           { label: "Confirmacao de presenca (RSVP)", value: rsvpLink },
           { label: "Lista de presentes", value: giftsLink },
         ].map((item) => (
           <div key={item.label} className="rounded-xl border bg-white p-3">
             <p className="mb-1 text-xs tracking-[0.12em] text-[var(--color-muted)]">{item.label}</p>
-            <p className="truncate text-sm">{item.value || "Carregando link..."}</p>
+            <p className="break-all text-sm">{item.value || "Carregando link..."}</p>
             <div className="mt-2 flex flex-wrap gap-2">
               <Button type="button" variant="outline" className="h-9 px-4" onClick={() => copyLink(item.value)}>
                 Copiar link
               </Button>
-              <a href={item.value || "#"} target="_blank" rel="noreferrer">
-                <Button type="button" className="h-9 px-4">
+              <a href={item.value || "#"} target="_blank" rel="noreferrer" className={!item.value ? "pointer-events-none opacity-50" : ""}>
+                <Button type="button" className="h-9 px-4" disabled={!item.value}>
                   Abrir link
                 </Button>
               </a>

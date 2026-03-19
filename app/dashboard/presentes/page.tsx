@@ -44,11 +44,17 @@ export default function GiftsDashboardPage() {
   const [rows, setRows] = useState<GiftItem[]>([]);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetch("/api/dashboard/gifts")
-      .then((r) => r.json() as Promise<GiftsResponse>)
+      .then((r) => r.json() as Promise<GiftsResponse & { error?: string }>)
       .then((data) => {
+        if (data.error) {
+          toast.error(data.error);
+          return;
+        }
         const map = new Map<string, DashboardGift>((data.gifts ?? []).map((g) => [g.catalogItemId, g]));
         const merged = (data.catalog ?? []).map((item) => {
           const mappedGift = map.get(item.id);
@@ -65,7 +71,8 @@ export default function GiftsDashboardPage() {
           };
         });
         setRows(merged);
-      });
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const filtered = useMemo(() => {
@@ -79,6 +86,8 @@ export default function GiftsDashboardPage() {
   const pagedRows = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   async function save() {
+    if (saving) return;
+    setSaving(true);
     const items = rows.map((row) => ({
       catalogItemId: row.catalogItemId,
       active: row.active,
@@ -90,7 +99,12 @@ export default function GiftsDashboardPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ items }),
     });
-    if (!res.ok) return toast.error("Falha ao salvar presentes");
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    if (!res.ok) {
+      toast.error(data.error ?? "Falha ao salvar presentes");
+      setSaving(false);
+      return;
+    }
     setRows((old) =>
       old.map((row) => {
         const cents = parseCurrencyInputToCents(row.priceInput);
@@ -98,6 +112,7 @@ export default function GiftsDashboardPage() {
       }),
     );
     toast.success("Presentes atualizados");
+    setSaving(false);
   }
 
   return (
@@ -107,7 +122,7 @@ export default function GiftsDashboardPage() {
           <h1 className="text-3xl">Presentes</h1>
           <p className="text-sm text-[var(--color-muted)]">Catalogo completo com paginacao</p>
         </div>
-        <Button onClick={save}>Salvar</Button>
+        <Button onClick={save} disabled={saving}>{saving ? "Salvando..." : "Salvar"}</Button>
       </div>
 
       <input
@@ -124,6 +139,9 @@ export default function GiftsDashboardPage() {
         Valores em Real brasileiro. Aceita virgula ou ponto (ex: 120,50 ou 120.50).
       </p>
 
+      {loading ? (
+        <div className="rounded-xl border bg-white/90 p-6 text-center text-sm text-[var(--color-muted)]">Carregando catalogo de presentes...</div>
+      ) : (
       <div className="space-y-2">
         {pagedRows.map((row) => {
           const idx = rows.findIndex((item) => item.catalogItemId === row.catalogItemId);
@@ -187,17 +205,18 @@ export default function GiftsDashboardPage() {
           );
         })}
       </div>
+      )}
 
       <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-[var(--color-muted)]">
           Exibindo {(currentPage - 1) * PAGE_SIZE + 1} - {Math.min(currentPage * PAGE_SIZE, filtered.length)} de {filtered.length}
         </p>
         <div className="flex items-center gap-2">
-          <Button type="button" variant="outline" onClick={() => setPage((p) => Math.max(1, p - 1))}>
+          <Button type="button" variant="outline" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={loading || currentPage === 1}>
             Anterior
           </Button>
           <span className="text-sm">{currentPage}/{totalPages}</span>
-          <Button type="button" variant="outline" onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>
+          <Button type="button" variant="outline" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={loading || currentPage === totalPages}>
             Proxima
           </Button>
         </div>

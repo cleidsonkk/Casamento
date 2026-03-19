@@ -23,6 +23,8 @@ body {
   background: radial-gradient(circle at top, #ffffff, var(--color-bg));
   color: var(--color-text);
   min-height: 100vh;
+  text-rendering: optimizeLegibility;
+  overflow-wrap: anywhere;
 }
 
 h1,
@@ -31,6 +33,7 @@ h3,
 h4 {
   font-family: var(--font-heading), serif;
   letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 
 .glass {
@@ -38,3 +41,7 @@ h4 {
   backdrop-filter: blur(8px);
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 7rem;
+}

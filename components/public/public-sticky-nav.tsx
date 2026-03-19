@@ -51,7 +51,7 @@ export function PublicStickyNav({
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <nav className="hidden flex-wrap items-center gap-2 md:flex">
               {items.map((item) => (
                 <a
@@ -65,8 +65,21 @@ export function PublicStickyNav({
                 </a>
               ))}
             </nav>
+            <nav className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 md:hidden">
+              {items.map((item) => (
+                <a
+                  key={item.id}
+                  href={`#${item.id}`}
+                  className={`shrink-0 rounded-full px-3 py-2 text-xs transition ${
+                    active === item.id ? "bg-black text-white" : "bg-white/85 text-[var(--color-muted)]"
+                  }`}
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
             <Link href={`/${slug}/rsvp`}>
-              <Button className="h-10 rounded-full px-6">Confirmar Presença</Button>
+              <Button className="h-10 w-full rounded-full px-6 sm:w-auto">Confirmar Presenca</Button>
             </Link>
           </div>
         </div>
@@ -75,7 +88,7 @@ export function PublicStickyNav({
       <div className="fixed inset-x-0 bottom-3 z-40 px-4 md:hidden">
         <Link href={`/${slug}/rsvp`}>
           <Button className="h-12 w-full rounded-full shadow-[0_18px_40px_-22px_rgba(0,0,0,.55)]">
-            Confirmar Presença
+            Confirmar Presenca
           </Button>
         </Link>
       </div>

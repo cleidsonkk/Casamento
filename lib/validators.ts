@@ -32,3 +32,32 @@ export const registerSchema = z.object({
   email: z.string().email().max(180),
   password: z.string().min(6).max(80),
 });
+
+export const dashboardGuestSchema = z.object({
+  fullName: z.string().trim().min(3).max(120),
+  maxCompanions: z.coerce.number().int().min(0).max(10).default(0),
+  passcode: z.string().trim().max(64).optional().nullable(),
+});
+
+export const dashboardPixSchema = z.object({
+  pixKey: z.string().trim().min(3).max(180),
+  receiverName: z.string().trim().min(3).max(80),
+  city: z.string().trim().min(2).max(40),
+  txidPrefix: z.string().trim().min(2).max(10),
+  enabled: z.boolean().default(true),
+});
+
+export const dashboardGiftItemSchema = z.object({
+  catalogItemId: z.string().min(8),
+  active: z.boolean(),
+  priceCents: z.coerce.number().int().min(100).max(50_000_000),
+  giftMode: z.enum(["UNIQUE", "REPEATABLE"]),
+});
+
+export const dashboardGiftsSchema = z.object({
+  items: z.array(dashboardGiftItemSchema).max(500),
+});
+
+export const dashboardOrderConfirmSchema = z.object({
+  status: z.enum(["PAID", "CANCELED"]),
+});

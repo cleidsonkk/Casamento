@@ -47,7 +47,13 @@ export const authOptions: NextAuthOptions = {
       }
       const nextCoupleId = (session as { coupleId?: string } | undefined)?.coupleId;
       if (trigger === "update" && nextCoupleId) {
-        token.coupleId = nextCoupleId;
+        const membership = await db.coupleMember.findFirst({
+          where: { userId: token.sub, coupleId: nextCoupleId },
+          select: { coupleId: true },
+        });
+        if (membership?.coupleId) {
+          token.coupleId = membership.coupleId;
+        }
       }
       return token;
     },

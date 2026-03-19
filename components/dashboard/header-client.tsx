@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
 type NavLink = { label: string; href: string };
@@ -37,22 +38,28 @@ export function DashboardHeaderClient({
   async function switchCouple(nextCoupleId: string) {
     if (!nextCoupleId || nextCoupleId === currentCoupleId) return;
     setSwitching(true);
-    await update({ coupleId: nextCoupleId } as never);
-    router.refresh();
-    setSwitching(false);
-    setOpen(false);
+    try {
+      await update({ coupleId: nextCoupleId } as never);
+      router.refresh();
+      setOpen(false);
+      toast.success("Casal ativo atualizado.");
+    } catch {
+      toast.error("Nao foi possivel trocar o casal ativo.");
+    } finally {
+      setSwitching(false);
+    }
   }
 
   return (
     <header className={`sticky top-0 z-30 border-b backdrop-blur ${dark ? "border-white/10 bg-black/45" : "border-white/60 bg-white/70"}`}>
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
+      <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 py-2 md:px-6">
         <div>
           <p className={`text-[11px] tracking-[0.18em] ${dark ? "text-white/70" : "text-[var(--color-muted)]"}`}>PAINEL LUXO 2026</p>
           <p className={`text-sm ${baseClass}`}>{title}</p>
         </div>
 
         <div className="hidden items-center gap-2 md:flex">
-          <nav className="flex items-center gap-1 overflow-auto rounded-full border border-white/60 bg-white/60 p-1">
+          <nav className="flex max-w-[42rem] items-center gap-1 overflow-auto rounded-full border border-white/60 bg-white/60 p-1">
             {links.map((item) => (
               <Link
                 key={item.href}
@@ -99,7 +106,7 @@ export function DashboardHeaderClient({
       </div>
 
       {open ? (
-        <div className={`border-t px-4 pb-4 pt-2 md:hidden ${dark ? "border-white/10 bg-black/40" : "border-white/70 bg-white/90"}`}>
+        <div className={`border-t px-4 pb-5 pt-3 md:hidden ${dark ? "border-white/10 bg-black/40" : "border-white/70 bg-white/90"}`}>
           <p className={`mb-2 text-sm ${baseClass}`}>{userName || "Noivos"}</p>
           <select
             className={`mb-3 h-10 w-full rounded-xl border px-3 text-sm ${dark ? "border-white/20 bg-black/30 text-white" : "border-[var(--color-border)] bg-white"}`}
