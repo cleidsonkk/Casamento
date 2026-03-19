@@ -34,7 +34,11 @@ export async function enforceRateLimit(key: string, limit = 10, windowMs = 60_00
     }
     return memoryLimit(key, limit, windowMs);
   }
-  const res = await ratelimit.limit(key);
-  return { success: res.success, reset: res.reset };
+  try {
+    const res = await ratelimit.limit(key);
+    return { success: res.success, reset: res.reset };
+  } catch (error) {
+    console.error("[rate-limit] External limiter failed, using in-memory fallback", error);
+    return memoryLimit(key, limit, windowMs);
+  }
 }
-
