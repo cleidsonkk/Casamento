@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GiftMode, OrderStatus } from "@prisma/client";
+import { randomUUID } from "crypto";
 import { db } from "@/lib/db";
 import { enforceRateLimit } from "@/lib/rateLimit";
 import { RESERVATION_MINUTES, hasActiveUniqueReservation } from "@/lib/reservation";
@@ -7,7 +8,45 @@ import { orderSchema } from "@/lib/validators";
 import { logAudit } from "@/lib/audit";
 
 function createTxid(prefix: string) {
-  return `${prefix}${Date.now().toString(36).toUpperCase()}`.slice(0, 25);
+  const safePrefix = (prefix || "WED").replace(/[^A-Z0-9]/gi, "").toUpperCase().slice(0, 8) || "WED";
+  const entropy = randomUUID().replace(/-/g, "").toUpperCase().slice(0, 25 - safePrefix.length);
+  return `${safePrefix}${entropy}`.slice(0, 25);
+}
+
+async function createOrderWithUniqueTxid(input: {
+  coupleId: string;
+  weddingGiftId: string;
+  giverName: string;
+  message?: string;
+  amountCents: number;
+  txidPrefix: string;
+  reserve: boolean;
+}) {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      return await db.giftOrder.create({
+        data: {
+          coupleId: input.coupleId,
+          weddingGiftId: input.weddingGiftId,
+          giverName: input.giverName,
+          message: input.message,
+          amountCents: input.amountCents,
+          status: OrderStatus.PENDING_PAYMENT,
+          pixTxid: createTxid(input.txidPrefix),
+          reservedUntil: input.reserve ? new Date(Date.now() + RESERVATION_MINUTES * 60_000) : null,
+        },
+      });
+    } catch (error) {
+      const isUniqueTxidError =
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        error.code === "P2002";
+      if (!isUniqueTxidError || attempt === 2) throw error;
+    }
+  }
+
+  throw new Error("Nao foi possivel gerar um TXID unico");
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
@@ -24,7 +63,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
 
     const couple = await db.couple.findUnique({
       where: { slug },
-      include: { pixSetting: true, gifts: true },
+      include: { pixSetting: true },
     });
     if (!couple) return NextResponse.json({ error: "Not found" }, { status: 404 });
     if (!couple.pixSetting?.enabled) return NextResponse.json({ error: "Pix nao configurado" }, { status: 400 });
@@ -39,17 +78,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
       if (blocked) return NextResponse.json({ error: "Presente reservado/indisponivel" }, { status: 409 });
     }
 
-    const order = await db.giftOrder.create({
-      data: {
-        coupleId: couple.id,
-        weddingGiftId: gift.id,
-        giverName: parsed.data.giverName,
-        message: parsed.data.message,
-        amountCents: gift.priceCents,
-        status: OrderStatus.PENDING_PAYMENT,
-        pixTxid: createTxid(couple.pixSetting.txidPrefix),
-        reservedUntil: gift.giftMode === GiftMode.UNIQUE ? new Date(Date.now() + RESERVATION_MINUTES * 60_000) : null,
-      },
+    const order = await createOrderWithUniqueTxid({
+      coupleId: couple.id,
+      weddingGiftId: gift.id,
+      giverName: parsed.data.giverName,
+      message: parsed.data.message,
+      amountCents: gift.priceCents,
+      txidPrefix: couple.pixSetting.txidPrefix,
+      reserve: gift.giftMode === GiftMode.UNIQUE,
     });
 
     try {
